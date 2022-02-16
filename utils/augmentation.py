@@ -2,6 +2,17 @@ import random
 from PIL import Image
 
 
+class BiCompose:
+
+    def __init__(self, bi_functions):
+        self.bi_functions = bi_functions
+
+    def __call__(self, x1, x2):
+        for f in self.bi_functions:
+            x1, x2 = f(x1, x2)
+        return x1, x2
+
+
 class SyncRandomHorizontalFlip:
 
     def __call__(self, img, seg):
