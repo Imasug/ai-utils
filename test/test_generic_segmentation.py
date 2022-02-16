@@ -1,10 +1,40 @@
 import unittest
 from data.generic.segmentation import GenericSegmentation
 from pathlib import Path
+from PIL import Image
 
 
 class TestGenericSegmentation(unittest.TestCase):
 
-    def test(self):
+    def test_train(self):
         root = Path(__file__).parent.joinpath('datasets').joinpath('lip')
-        dataset = GenericSegmentation(root)
+        dataset = GenericSegmentation(root, 'train')
+        self.assertEqual(2, len(dataset))
+
+        img0, seg0 = dataset.__getitem__(0)
+        self.assertIsInstance(img0, Image.Image)
+        self.assertEqual('RGB', img0.mode)
+        self.assertIsInstance(seg0, Image.Image)
+        self.assertEqual('L', seg0.mode)
+        self.assertEqual((179, 312), img0.size)
+        self.assertEqual(img0.size, seg0.size)
+
+        img1, seg1 = dataset.__getitem__(1)
+        self.assertEqual((104, 120), img1.size)
+        self.assertEqual(img1.size, seg1.size)
+
+    def test_val(self):
+        root = Path(__file__).parent.joinpath('datasets').joinpath('lip')
+        dataset = GenericSegmentation(root, 'val')
+        self.assertEqual(1, len(dataset))
+
+    def test_sync_transform(self):
+        root = Path(__file__).parent.joinpath('datasets').joinpath('lip')
+
+        def sync_transform(img, seg):
+            return 1, 2
+
+        dataset = GenericSegmentation(root, 'val', sync_transform=sync_transform)
+        img, seg = dataset.__getitem__(0)
+        self.assertEqual(img, 1)
+        self.assertEqual(seg, 2)
