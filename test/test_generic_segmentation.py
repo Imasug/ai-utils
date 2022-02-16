@@ -28,13 +28,13 @@ class TestGenericSegmentation(unittest.TestCase):
         dataset = GenericSegmentation(root, 'val')
         self.assertEqual(1, len(dataset))
 
-    def test_sync_transform(self):
+    def test_transform(self):
         root = Path(__file__).parent.joinpath('datasets').joinpath('lip')
 
-        def sync_transform(img, seg):
+        def transform(img, seg):
             return 1, 2
 
-        dataset = GenericSegmentation(root, 'val', sync_transform=sync_transform)
+        dataset = GenericSegmentation(root, 'val', transform=transform)
         img, seg = dataset.__getitem__(0)
         self.assertEqual(img, 1)
         self.assertEqual(seg, 2)

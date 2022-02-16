@@ -4,8 +4,8 @@ from PIL import Image
 
 class GenericSegmentation:
 
-    def __init__(self, root, mode, sync_transform=None):
-        self.sync_transform = sync_transform
+    def __init__(self, root, mode, transform=None):
+        self.transform = transform
         self.img_paths, self.seg_paths = self._get_paths(root, mode)
 
     def _get_paths(self, root, mode):
@@ -17,8 +17,8 @@ class GenericSegmentation:
         img = Image.open(self.img_paths[index]).convert('RGB')
         seg = Image.open(self.seg_paths[index])
 
-        if self.sync_transform is not None:
-            img, seg = self.sync_transform(img, seg)
+        if self.transform is not None:
+            img, seg = self.transform(img, seg)
 
         return img, seg
 
