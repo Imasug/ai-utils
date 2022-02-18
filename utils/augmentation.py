@@ -1,5 +1,6 @@
 import random
 from PIL import Image
+import numpy as np
 
 
 class BiCompose:
@@ -19,4 +20,17 @@ class SyncRandomHorizontalFlip:
         if random.random() < 0.5:
             img = img.transpose(Image.FLIP_LEFT_RIGHT)
             seg = seg.transpose(Image.FLIP_LEFT_RIGHT)
+        return img, seg
+
+
+class SyncRandomRotation:
+
+    def __init__(self, degrees):
+        self.degrees = degrees
+
+    def __call__(self, img, seg):
+        degree = np.random.uniform(*self.degrees)
+        if random.random() < 0.5:
+            img = img.rotate(degree)
+            seg = seg.rotate(degree)
         return img, seg

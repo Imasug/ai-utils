@@ -1,7 +1,5 @@
 import unittest
-from PIL import Image
-import numpy as np
-from utils.augmentation import SyncRandomHorizontalFlip, BiCompose
+from utils.augmentation import *
 
 
 class TestAugmentation(unittest.TestCase):
