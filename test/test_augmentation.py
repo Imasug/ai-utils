@@ -1,5 +1,11 @@
 import unittest
 from utils.augmentation import *
+from pathlib import Path
+import matplotlib.pyplot as plt
+
+test_images_path = Path(__file__).parent.joinpath('images')
+test_img_path = test_images_path.joinpath('test.jpg')
+test_seg_path = test_images_path.joinpath('test.png')
 
 
 class TestAugmentation(unittest.TestCase):
@@ -15,9 +21,43 @@ class TestAugmentation(unittest.TestCase):
         self.assertEqual((6, 16), y)
 
     def test_sync_random_horizontal_flip(self):
-        img = Image.fromarray(np.array([[1, 2]]))
-        seg = Image.fromarray(np.array([[3, 4]]))
+        row = 2
+        col = 2
+        fig = plt.figure()
+
+        img = Image.open(test_img_path)
+        seg = Image.open(test_seg_path)
+
+        fig.add_subplot(row, col, 1)
+        plt.imshow(img)
+        fig.add_subplot(row, col, 2)
+        plt.imshow(seg)
+
         img, seg = SyncRandomHorizontalFlip()(img, seg)
-        # TODO
-        print(np.array(img))
-        print(np.array(seg))
+
+        fig.add_subplot(row, col, 3)
+        plt.imshow(img)
+        fig.add_subplot(row, col, 4)
+        plt.imshow(seg)
+        plt.show()
+
+    def test_sync_random_rotation(self):
+        row = 2
+        col = 2
+        fig = plt.figure()
+
+        img = Image.open(test_img_path)
+        seg = Image.open(test_seg_path)
+
+        fig.add_subplot(row, col, 1)
+        plt.imshow(img)
+        fig.add_subplot(row, col, 2)
+        plt.imshow(seg)
+
+        img, seg = SyncRandomRotation((-45, 45))(img, seg)
+
+        fig.add_subplot(row, col, 3)
+        plt.imshow(img)
+        fig.add_subplot(row, col, 4)
+        plt.imshow(seg)
+        plt.show()
