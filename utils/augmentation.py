@@ -1,6 +1,5 @@
 import random
 from PIL import Image
-from torchvision.transforms import *
 import numpy as np
 
 
@@ -39,14 +38,28 @@ class SyncRandomRotation:
         return img, seg
 
 
-class SyncRandomScale:
+class SyncRandomScaledCrop:
 
     def __init__(self, scale):
         self.scale = scale
 
     def __call__(self, img, seg):
         scale = np.random.uniform(*self.scale)
-        size = (np.array(img.size) * scale).astype(int)
-        img = img.resize(size, Image.BICUBIC)
-        seg = seg.resize(size)
+        size = np.array(img.size)
+        scaled_size = (size * scale).astype(int)
+        img = img.resize(scaled_size, Image.BICUBIC)
+        seg = seg.resize(scaled_size)
+        if scale > 1.0:
+            box1 = np.random.randint(0, scaled_size - size).astype(int)
+            box2 = box1 + size
+            img = img.crop((*box1, *box2))
+            seg = seg.crop((*box1, *box2))
+        else:
+            box1 = np.random.randint(0, size - scaled_size).astype(int)
+            original_img = img.copy()
+            img = Image.new(img.mode, tuple(size), 0)
+            img.paste(original_img, tuple(box1))
+            original_seg = seg.copy()
+            seg = Image.new(seg.mode, tuple(size), 0)
+            seg.paste(original_seg, tuple(box1))
         return img, seg

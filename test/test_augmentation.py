@@ -75,7 +75,7 @@ class TestAugmentation(unittest.TestCase):
         fig.add_subplot(row, col, 2)
         plt.imshow(seg)
 
-        img, seg = SyncRandomScale((0.5, 2.0))(img, seg)
+        img, seg = SyncRandomScaledCrop((0.5, 2.0))(img, seg)
 
         fig.add_subplot(row, col, 3)
         plt.imshow(img)
