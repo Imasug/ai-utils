@@ -61,3 +61,24 @@ class TestAugmentation(unittest.TestCase):
         fig.add_subplot(row, col, 4)
         plt.imshow(seg)
         plt.show()
+
+    def test_sync_random_scale(self):
+        row = 2
+        col = 2
+        fig = plt.figure()
+
+        img = Image.open(test_img_path)
+        seg = Image.open(test_seg_path)
+
+        fig.add_subplot(row, col, 1)
+        plt.imshow(img)
+        fig.add_subplot(row, col, 2)
+        plt.imshow(seg)
+
+        img, seg = SyncRandomScale((0.5, 2.0))(img, seg)
+
+        fig.add_subplot(row, col, 3)
+        plt.imshow(img)
+        fig.add_subplot(row, col, 4)
+        plt.imshow(seg)
+        plt.show()
