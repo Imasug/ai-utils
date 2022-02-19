@@ -1,6 +1,7 @@
 import random
 from PIL import Image
-import numpy as np
+from torchvision.transforms import *
+import torchvision.transforms.functional as F
 
 
 class BiCompose:
@@ -16,8 +17,11 @@ class BiCompose:
 
 class SyncRandomHorizontalFlip:
 
+    def __init__(self, p=0.5):
+        self.p = p
+
     def __call__(self, img, seg):
-        if random.random() < 0.5:
+        if random.random() < self.p:
             img = img.transpose(Image.FLIP_LEFT_RIGHT)
             seg = seg.transpose(Image.FLIP_LEFT_RIGHT)
         return img, seg
@@ -25,12 +29,11 @@ class SyncRandomHorizontalFlip:
 
 class SyncRandomRotation:
 
-    def __init__(self, degrees):
-        self.degrees = degrees
+    def __init__(self, *args, **kwargs):
+        self.t = RandomRotation(*args, **kwargs)
 
     def __call__(self, img, seg):
-        degree = np.random.uniform(*self.degrees)
-        if random.random() < 0.5:
-            img = img.rotate(degree)
-            seg = seg.rotate(degree)
+        angle = self.t.get_params(self.t.degrees)
+        img = F.rotate(img, angle, self.t.resample, self.t.expand, self.t.center, self.t.fill)
+        seg = F.rotate(seg, angle, self.t.resample, self.t.expand, self.t.center, self.t.fill)
         return img, seg
