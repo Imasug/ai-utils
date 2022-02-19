@@ -2,7 +2,7 @@ import glob
 from PIL import Image
 
 
-class GenericSegmentation:
+class GenericSegmentationDataset:
 
     def __init__(self, root, mode, transform=None):
         self.transform = transform

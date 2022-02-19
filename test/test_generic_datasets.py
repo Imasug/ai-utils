@@ -1,14 +1,14 @@
 import unittest
-from data.generic.segmentation import GenericSegmentation
+from datasets.generic_dataset import GenericSegmentationDataset
 from pathlib import Path
 from PIL import Image
 
 
-class TestGenericSegmentation(unittest.TestCase):
+class TestGenericSegmentationDataset(unittest.TestCase):
 
     def test_train(self):
         root = Path(__file__).parent.joinpath('datasets').joinpath('lip')
-        dataset = GenericSegmentation(root, 'train')
+        dataset = GenericSegmentationDataset(root, 'train')
         self.assertEqual(2, len(dataset))
 
         img0, seg0 = dataset.__getitem__(0)
@@ -25,7 +25,7 @@ class TestGenericSegmentation(unittest.TestCase):
 
     def test_val(self):
         root = Path(__file__).parent.joinpath('datasets').joinpath('lip')
-        dataset = GenericSegmentation(root, 'val')
+        dataset = GenericSegmentationDataset(root, 'val')
         self.assertEqual(1, len(dataset))
 
     def test_transform(self):
@@ -34,7 +34,7 @@ class TestGenericSegmentation(unittest.TestCase):
         def transform(img, seg):
             return 1, 2
 
-        dataset = GenericSegmentation(root, 'val', transform=transform)
+        dataset = GenericSegmentationDataset(root, 'val', transform=transform)
         img, seg = dataset.__getitem__(0)
         self.assertEqual(img, 1)
         self.assertEqual(seg, 2)
