@@ -92,10 +92,6 @@ class TestAugmentation(unittest.TestCase):
         self.assertEqual(2, img)
         self.assertEqual(6, seg)
 
-    def test_no(self):
-        img = 1
-        self.assertEqual(img, No()(img))
-
     def test_sync_resize(self):
         row = 2
         col = 2

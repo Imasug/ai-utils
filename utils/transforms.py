@@ -67,18 +67,12 @@ class SyncRandomScaledCrop:
 
 class BiTransform:
 
-    def __init__(self, img, seg):
+    def __init__(self, img=lambda x: x, seg=lambda x: x):
         self.img_transform = img
         self.seg_transform = seg
 
     def __call__(self, img, seg):
         return self.img_transform(img), self.seg_transform(seg)
-
-
-class No:
-
-    def __call__(self, x):
-        return x
 
 
 class SyncResize:
