@@ -3,15 +3,15 @@ from PIL import Image, ImageFilter
 import numpy as np
 
 
-class BiTransforms:
+class Transforms:
 
-    def __init__(self, bi_functions):
-        self.bi_functions = bi_functions
+    def __init__(self, transforms):
+        self.transforms = transforms
 
-    def __call__(self, x1, x2):
-        for f in self.bi_functions:
-            x1, x2 = f(x1, x2)
-        return x1, x2
+    def __call__(self, img, seg):
+        for transform in self.transforms:
+            img, seg = transform(img=img, seg=seg)
+        return img, seg
 
 
 class SyncRandomHorizontalFlip:
@@ -65,7 +65,7 @@ class SyncRandomScaledCrop:
         return img, seg
 
 
-class BiTransform:
+class Transform:
 
     def __init__(self, img=lambda x: x, seg=lambda x: x):
         self.img_transform = img

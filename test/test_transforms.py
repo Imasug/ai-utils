@@ -10,14 +10,14 @@ test_seg_path = test_images_path.joinpath('test.png')
 
 class TestAugmentation(unittest.TestCase):
 
-    def test_bi_transforms(self):
-        def func1(x1, x2):
-            return x1 + 1, x2 + 2
+    def test_transforms(self):
+        def transform1(img, seg):
+            return img + 1, seg + 2
 
-        def func2(x1, x2):
-            return x1 * 3, x2 * 4
+        def transform2(img, seg):
+            return img * 3, seg * 4
 
-        y = BiTransforms([func1, func2])(1, 2)
+        y = Transforms([transform1, transform2])(img=1, seg=2)
         self.assertEqual((6, 16), y)
 
     def test_sync_random_horizontal_flip(self):
@@ -83,11 +83,11 @@ class TestAugmentation(unittest.TestCase):
         plt.imshow(seg)
         plt.show()
 
-    def test_bi_transform(self):
+    def test_transform(self):
         img = 1
         seg = 2
 
-        img, seg = BiTransform(img=lambda x: 2 * x, seg=lambda x: 3 * x)(img, seg)
+        img, seg = Transform(img=lambda x: 2 * x, seg=lambda x: 3 * x)(img, seg)
 
         self.assertEqual(2, img)
         self.assertEqual(6, seg)
