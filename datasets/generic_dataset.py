@@ -18,7 +18,7 @@ class GenericSegmentationDataset:
         seg = Image.open(self.seg_paths[index])
 
         if self.transform is not None:
-            img, seg = self.transform(img=img, seg=seg)
+            img, seg = self.transform(data=img, target=seg)
 
         return img, seg
 

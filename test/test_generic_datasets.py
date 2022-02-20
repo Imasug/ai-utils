@@ -31,7 +31,7 @@ class TestGenericSegmentationDataset(unittest.TestCase):
     def test_transform(self):
         root = Path(__file__).parent.joinpath('datasets').joinpath('lip')
 
-        def transform(img, seg):
+        def transform(data, target):
             return 1, 2
 
         dataset = GenericSegmentationDataset(root, 'val', transform=transform)

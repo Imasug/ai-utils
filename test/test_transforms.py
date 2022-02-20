@@ -8,16 +8,16 @@ test_img_path = test_images_path.joinpath('test.jpg')
 test_seg_path = test_images_path.joinpath('test.png')
 
 
-class TestAugmentation(unittest.TestCase):
+class TestTransforms(unittest.TestCase):
 
     def test_transforms(self):
-        def transform1(img, seg):
-            return img + 1, seg + 2
+        def transform1(data, target):
+            return data + 1, target + 2
 
-        def transform2(img, seg):
-            return img * 3, seg * 4
+        def transform2(data, target):
+            return data * 3, target * 4
 
-        y = Transforms([transform1, transform2])(img=1, seg=2)
+        y = Transforms([transform1, transform2])(data=1, target=2)
         self.assertEqual((6, 16), y)
 
     def test_sync_random_horizontal_flip(self):
@@ -33,7 +33,7 @@ class TestAugmentation(unittest.TestCase):
         fig.add_subplot(row, col, 2)
         plt.imshow(seg)
 
-        img, seg = SyncRandomHorizontalFlip()(img, seg)
+        img, seg = SyncRandomHorizontalFlip()(data=img, target=seg)
 
         fig.add_subplot(row, col, 3)
         plt.imshow(img)
@@ -54,7 +54,7 @@ class TestAugmentation(unittest.TestCase):
         fig.add_subplot(row, col, 2)
         plt.imshow(seg)
 
-        img, seg = SyncRandomRotation((-45, 45))(img, seg)
+        img, seg = SyncRandomRotation((-45, 45))(data=img, target=seg)
 
         fig.add_subplot(row, col, 3)
         plt.imshow(img)
@@ -75,7 +75,7 @@ class TestAugmentation(unittest.TestCase):
         fig.add_subplot(row, col, 2)
         plt.imshow(seg)
 
-        img, seg = SyncRandomScaledCrop((0.5, 2.0))(img, seg)
+        img, seg = SyncRandomScaledCrop((0.5, 2.0))(data=img, target=seg)
 
         fig.add_subplot(row, col, 3)
         plt.imshow(img)
@@ -87,7 +87,7 @@ class TestAugmentation(unittest.TestCase):
         img = 1
         seg = 2
 
-        img, seg = Transform(img=lambda x: 2 * x, seg=lambda x: 3 * x)(img, seg)
+        img, seg = Transform(data=lambda x: 2 * x, target=lambda x: 3 * x)(data=img, target=seg)
 
         self.assertEqual(2, img)
         self.assertEqual(6, seg)
@@ -105,7 +105,7 @@ class TestAugmentation(unittest.TestCase):
         fig.add_subplot(row, col, 2)
         plt.imshow(seg)
 
-        img, seg = SyncResize(size=(200, 200))(img, seg)
+        img, seg = SyncResize(size=(200, 200))(data=img, target=seg)
 
         fig.add_subplot(row, col, 3)
         plt.imshow(img)

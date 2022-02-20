@@ -8,10 +8,10 @@ class Transforms:
     def __init__(self, transforms):
         self.transforms = transforms
 
-    def __call__(self, img, seg):
+    def __call__(self, data, target):
         for transform in self.transforms:
-            img, seg = transform(img=img, seg=seg)
-        return img, seg
+            data, target = transform(data=data, target=target)
+        return data, target
 
 
 class SyncRandomHorizontalFlip:
@@ -19,11 +19,11 @@ class SyncRandomHorizontalFlip:
     def __init__(self, p=0.5):
         self.p = p
 
-    def __call__(self, img, seg):
+    def __call__(self, data, target):
         if random.random() < self.p:
-            img = img.transpose(Image.FLIP_LEFT_RIGHT)
-            seg = seg.transpose(Image.FLIP_LEFT_RIGHT)
-        return img, seg
+            data = data.transpose(Image.FLIP_LEFT_RIGHT)
+            target = target.transpose(Image.FLIP_LEFT_RIGHT)
+        return data, target
 
 
 class SyncRandomRotation:
@@ -31,11 +31,11 @@ class SyncRandomRotation:
     def __init__(self, degrees):
         self.degrees = degrees
 
-    def __call__(self, img, seg):
+    def __call__(self, data, target):
         angle = np.random.uniform(*self.degrees)
-        img = img.rotate(angle)
-        seg = seg.rotate(angle)
-        return img, seg
+        data = data.rotate(angle)
+        target = target.rotate(angle)
+        return data, target
 
 
 class SyncRandomScaledCrop:
@@ -43,36 +43,36 @@ class SyncRandomScaledCrop:
     def __init__(self, scale):
         self.scale = scale
 
-    def __call__(self, img, seg):
+    def __call__(self, data, target):
         scale = np.random.uniform(*self.scale)
-        size = np.array(img.size)
+        size = np.array(data.size)
         scaled_size = (size * scale).astype(int)
-        img = img.resize(scaled_size, Image.BICUBIC)
-        seg = seg.resize(scaled_size)
+        data = data.resize(scaled_size, Image.BICUBIC)
+        target = target.resize(scaled_size)
         if scale > 1.0:
             box1 = np.random.randint(0, scaled_size - size).astype(int)
             box2 = box1 + size
-            img = img.crop((*box1, *box2))
-            seg = seg.crop((*box1, *box2))
+            data = data.crop((*box1, *box2))
+            target = target.crop((*box1, *box2))
         else:
             box1 = np.random.randint(0, size - scaled_size).astype(int)
-            original_img = img.copy()
-            img = Image.new(img.mode, tuple(size), 0)
-            img.paste(original_img, tuple(box1))
-            original_seg = seg.copy()
-            seg = Image.new(seg.mode, tuple(size), 0)
-            seg.paste(original_seg, tuple(box1))
-        return img, seg
+            original_data = data.copy()
+            img = Image.new(data.mode, tuple(size), 0)
+            img.paste(original_data, tuple(box1))
+            original_target = target.copy()
+            target = Image.new(target.mode, tuple(size), 0)
+            target.paste(original_target, tuple(box1))
+        return data, target
 
 
 class Transform:
 
-    def __init__(self, img=lambda x: x, seg=lambda x: x):
-        self.img_transform = img
-        self.seg_transform = seg
+    def __init__(self, data=lambda x: x, target=lambda x: x):
+        self.data_transform = data
+        self.target_transform = target
 
-    def __call__(self, img, seg):
-        return self.img_transform(img), self.seg_transform(seg)
+    def __call__(self, data, target):
+        return self.data_transform(data), self.target_transform(target)
 
 
 class SyncResize:
@@ -80,10 +80,10 @@ class SyncResize:
     def __init__(self, size):
         self.size = size
 
-    def __call__(self, img, seg):
-        img = img.resize(self.size, Image.BICUBIC)
-        seg = seg.resize(self.size)
-        return img, seg
+    def __call__(self, data, target):
+        data = data.resize(self.size, Image.BICUBIC)
+        target = target.resize(self.size)
+        return data, target
 
 
 class RandomGaussianBlur:
