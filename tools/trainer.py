@@ -80,7 +80,7 @@ class Trainer:
                 latest = json.load(f)
             start_epoch = latest['epoch'] + 1
             params_file = latest['params_file']
-            self.model.load_params(f'{self.save_dir}/{params_file}')
+            self.model.load_parameters(f'{self.save_dir}/{params_file}')
         for epoch in range(start_epoch, start_epoch + self.epochs):
             train_loss = self.train()
             val_loss = self.validate()
