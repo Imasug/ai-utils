@@ -94,7 +94,7 @@ class SyncResize:
 
 class RandomGaussianBlur:
 
-    def __init__(self, radius, p=0.5):
+    def __init__(self, radius=5, p=0.5):
         self.radius = radius
         self.p = p
 

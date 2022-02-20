@@ -130,7 +130,7 @@ class TestAugmentation(unittest.TestCase):
         fig.add_subplot(row, col, 2)
         plt.imshow(seg)
 
-        img = RandomGaussianBlur(radius=5)(img)
+        img = RandomGaussianBlur()(img)
 
         fig.add_subplot(row, col, 3)
         plt.imshow(img)
