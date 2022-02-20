@@ -1,6 +1,9 @@
-from mxnet import gluon, autograd
-from tqdm import tqdm
+import json
+import os
+
 import numpy as np
+from mxnet import autograd
+from tqdm import tqdm
 
 
 class Trainer:
@@ -14,16 +17,21 @@ class Trainer:
             criterion,
             optimizer,
             callback,
+            save_dir,
             batch_multi=1,
     ):
         self.model = model
         self.epochs = epochs
-        self.batch_multi = batch_multi
         self.train_data = train_data
         self.val_data = val_data
         self.criterion = criterion
         self.optimizer = optimizer
         self.callback = callback
+        self.save_dir = save_dir
+        self.batch_multi = batch_multi
+
+        if not os.path.exists(self.save_dir):
+            os.makedirs(self.save_dir)
 
         for p in self.model.collect_params().values():
             p.grad_req = 'add'
@@ -51,8 +59,6 @@ class Trainer:
                 for loss in losses:
                     train_loss += np.mean(loss.asnumpy()) / len(losses)
                 bar.set_description(f'iter: {i}, train loss: {train_loss / i:.3f}')
-                # TODO 消す
-                break
         return train_loss / i
 
     def validate(self):
@@ -64,14 +70,23 @@ class Trainer:
             for loss in losses:
                 val_loss += np.mean(loss.asnumpy()) / len(losses)
             bar.set_description(f'iter: {i}, val loss: {val_loss / i:.3f}')
-            # TODO 消す
-            break
         return val_loss / len(self.val_data)
 
     def start(self):
-        # TODO セーブデータ取得
-        for epoch in range(0, self.epochs):
+        latest_file = f'{self.save_dir}/latest.json'
+        if os.path.exists(latest_file):
+            with open(latest_file, 'r') as f:
+                latest = json.load(f)
+            params_file = latest["params_file"]
+            self.model.load_params(f'{self.save_dir}/{params_file}')
+        for epoch in range(1, self.epochs + 1):
             train_loss = self.train()
             val_loss = self.validate()
             self.callback(train_loss, val_loss)
-            # TODO セーブ
+            params_file = f'epoch_{epoch}.params'
+            self.model.save_parameters(f'{self.save_dir}/{params_file}')
+            latest = {
+                'params_file': params_file,
+            }
+            with open(latest_file, 'w') as f:
+                json.dump(latest, f, indent=2)

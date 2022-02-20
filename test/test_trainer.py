@@ -5,6 +5,7 @@ import mxnet as mx
 from gluoncv.loss import MixSoftmaxCrossEntropyLoss
 from mxnet import gluon
 from mxnet.gluon.data.vision import transforms
+from pathlib import Path
 
 from tools.trainer import Trainer
 
@@ -56,6 +57,7 @@ class TestTrainer(unittest.TestCase):
             criterion=criterion,
             optimizer=optimizer,
             callback=callback,
+            save_dir=str(Path(__file__).parent.joinpath('checkpoints')),
             batch_multi=batch_multi,
         )
 
