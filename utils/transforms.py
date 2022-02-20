@@ -1,5 +1,5 @@
 import random
-from PIL import Image
+from PIL import Image, ImageFilter
 import numpy as np
 
 
@@ -90,3 +90,15 @@ class SyncResize:
         img = img.resize(self.size, Image.BICUBIC)
         seg = seg.resize(self.size)
         return img, seg
+
+
+class RandomGaussianBlur:
+
+    def __init__(self, radius, p=0.5):
+        self.radius = radius
+        self.p = p
+
+    def __call__(self, img):
+        if random.random() < self.p:
+            img = img.filter(ImageFilter.GaussianBlur(radius=self.radius))
+        return img

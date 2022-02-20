@@ -116,3 +116,24 @@ class TestAugmentation(unittest.TestCase):
         fig.add_subplot(row, col, 4)
         plt.imshow(seg)
         plt.show()
+
+    def test_random_gaussian_blur(self):
+        row = 2
+        col = 2
+        fig = plt.figure()
+
+        img = Image.open(test_img_path)
+        seg = Image.open(test_seg_path)
+
+        fig.add_subplot(row, col, 1)
+        plt.imshow(img)
+        fig.add_subplot(row, col, 2)
+        plt.imshow(seg)
+
+        img = RandomGaussianBlur(radius=5)(img)
+
+        fig.add_subplot(row, col, 3)
+        plt.imshow(img)
+        fig.add_subplot(row, col, 4)
+        plt.imshow(seg)
+        plt.show()
