@@ -3,6 +3,7 @@ from PIL import Image, ImageFilter
 import numpy as np
 
 
+# TODO Transformの引数用のクラスを作成した方がよさそう。
 class Transforms:
 
     def __init__(self, transforms):

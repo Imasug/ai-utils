@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/semseg.iml" filepath="$PROJECT_DIR$/.idea/semseg.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/ai-utils.iml" filepath="$PROJECT_DIR$/.idea/ai-utils.iml" />
     </modules>
   </component>
 </project>
