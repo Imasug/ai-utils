@@ -3,7 +3,7 @@ from PIL import Image
 import numpy as np
 
 
-class BiCompose:
+class BiTransforms:
 
     def __init__(self, bi_functions):
         self.bi_functions = bi_functions
@@ -63,3 +63,19 @@ class SyncRandomScaledCrop:
             seg = Image.new(seg.mode, tuple(size), 0)
             seg.paste(original_seg, tuple(box1))
         return img, seg
+
+
+class BiTransform:
+
+    def __init__(self, img, seg):
+        self.img_transform = img
+        self.seg_transform = seg
+
+    def __call__(self, img, seg):
+        return self.img_transform(img), self.seg_transform(seg)
+
+
+class No:
+
+    def __call__(self, x):
+        return x
