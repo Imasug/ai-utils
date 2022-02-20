@@ -95,3 +95,24 @@ class TestAugmentation(unittest.TestCase):
     def test_no(self):
         img = 1
         self.assertEqual(img, No()(img))
+
+    def test_sync_resize(self):
+        row = 2
+        col = 2
+        fig = plt.figure()
+
+        img = Image.open(test_img_path)
+        seg = Image.open(test_seg_path)
+
+        fig.add_subplot(row, col, 1)
+        plt.imshow(img)
+        fig.add_subplot(row, col, 2)
+        plt.imshow(seg)
+
+        img, seg = SyncResize(size=(200, 200))(img, seg)
+
+        fig.add_subplot(row, col, 3)
+        plt.imshow(img)
+        fig.add_subplot(row, col, 4)
+        plt.imshow(seg)
+        plt.show()

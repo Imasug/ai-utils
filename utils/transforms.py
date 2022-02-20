@@ -79,3 +79,14 @@ class No:
 
     def __call__(self, x):
         return x
+
+
+class SyncResize:
+
+    def __init__(self, size):
+        self.size = size
+
+    def __call__(self, img, seg):
+        img = img.resize(self.size, Image.BICUBIC)
+        seg = seg.resize(self.size)
+        return img, seg
