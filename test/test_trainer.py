@@ -20,6 +20,7 @@ class TestTrainer(unittest.TestCase):
         ])
 
         batch_size = 2
+        batch_multi = 2
 
         trainset = gluoncv.data.ADE20KSegmentation(split='train', transform=input_transform)
         train_data = gluon.data.DataLoader(
@@ -55,6 +56,7 @@ class TestTrainer(unittest.TestCase):
             criterion=criterion,
             optimizer=optimizer,
             callback=callback,
+            batch_multi=batch_multi,
         )
 
         trainer.start()
