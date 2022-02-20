@@ -74,18 +74,21 @@ class Trainer:
 
     def start(self):
         latest_file = f'{self.save_dir}/latest.json'
+        start_epoch = 1
         if os.path.exists(latest_file):
             with open(latest_file, 'r') as f:
                 latest = json.load(f)
-            params_file = latest["params_file"]
+            start_epoch = latest['epoch'] + 1
+            params_file = latest['params_file']
             self.model.load_params(f'{self.save_dir}/{params_file}')
-        for epoch in range(1, self.epochs + 1):
+        for epoch in range(start_epoch, start_epoch + self.epochs):
             train_loss = self.train()
             val_loss = self.validate()
             self.callback(train_loss, val_loss)
             params_file = f'epoch_{epoch}.params'
             self.model.save_parameters(f'{self.save_dir}/{params_file}')
             latest = {
+                'epoch': epoch,
                 'params_file': params_file,
             }
             with open(latest_file, 'w') as f:
