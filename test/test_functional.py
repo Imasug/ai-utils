@@ -8,44 +8,29 @@ import utils.functional as F
 class TestFunctional(unittest.TestCase):
 
     def test_calc_mean_std(self):
+        items = []
         data = mx.nd.array([
+            # R
             [
-                # R
-                [
-                    [1, 2],
-                    [3, 4],
-                ],
-                # G
-                [
-                    [2, 4],
-                    [6, 8],
-                ],
-                # B
-                [
-                    [3, 6],
-                    [9, 12],
-                ]
+                [1, 2],
+                [3, 4],
             ],
+            # G
             [
-                # R
-                [
-                    [1, 2],
-                    [3, 4],
-                ],
-                # G
-                [
-                    [2, 4],
-                    [6, 8],
-                ],
-                # B
-                [
-                    [3, 6],
-                    [9, 12],
-                ]
+                [2, 4],
+                [6, 8],
+            ],
+            # B
+            [
+                [3, 6],
+                [9, 12],
             ]
         ])
 
-        dataset = mx.gluon.data.SimpleDataset(data)
+        items.append((data, 1))
+        items.append((data, 2))
+
+        dataset = mx.gluon.data.ArrayDataset(items)
         mean, std = F.calc_mean_std(dataset)
 
         self.assertEqual([2.5, 5, 7.5], mean)
