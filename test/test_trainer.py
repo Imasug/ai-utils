@@ -20,9 +20,10 @@ class TestTrainer(unittest.TestCase):
             transforms.Normalize([.485, .456, .406], [.229, .224, .225]),
         ])
 
-        batch_size = 2
-        batch_multi = 2
+        batch_size = 1
+        batch_multi = 1
 
+        # TODO データサイズを減らす
         trainset = gluoncv.data.ADE20KSegmentation(split='train', transform=input_transform)
         train_data = gluon.data.DataLoader(
             trainset, batch_size, shuffle=True, last_batch='rollover',
