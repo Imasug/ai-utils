@@ -30,7 +30,7 @@ class TestTrainer(unittest.TestCase):
 
         def criterion(outputs, target):
             losses = gluon.loss.SoftmaxCrossEntropyLoss()(outputs, target)
-            return list(losses)
+            return [losses]
 
         class MockOptimizer:
             def step(self, batch_size):
