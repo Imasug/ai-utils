@@ -5,13 +5,28 @@ import mxnet as mx
 from mxnet import gluon
 
 from tools.mx.trainer import Trainer
+from gluoncv.loss import MixSoftmaxCrossEntropyLoss
+from gluoncv.utils.parallel import *
 
 
 class TestTrainer(unittest.TestCase):
 
     def test(self):
-        model = mx.gluon.nn.Dense(1)
+        ctx_list = [mx.cpu(0)]
+
+        class MockModel(gluon.nn.Block):
+
+            def __init__(self):
+                super(MockModel, self).__init__()
+                self.proc1 = gluon.nn.Dense(1)
+                self.proc2 = gluon.nn.Dense(1)
+
+            def forward(self, x):
+                return self.proc1(x), self.proc2(x)
+
+        model = MockModel()
         model.initialize()
+        model = DataParallelModel(model, ctx_list)
 
         batch_multi = 2
 
@@ -28,9 +43,8 @@ class TestTrainer(unittest.TestCase):
         ]
         dataset = mx.gluon.data.ArrayDataset(items)
 
-        def criterion(outputs, target):
-            losses = gluon.loss.SoftmaxCrossEntropyLoss()(outputs, target)
-            return [losses]
+        criterion = MixSoftmaxCrossEntropyLoss(aux=True)
+        criterion = DataParallelCriterion(criterion, ctx_list)
 
         class MockOptimizer:
             def step(self, batch_size):
