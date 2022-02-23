@@ -1,32 +1,29 @@
-import mxnet as mx
+import numpy as np
 from tqdm import tqdm
 
 
-def calc_mean_std(dataset):
-    """
-    :param dataset:
-        Dataset of tuple of data and target.
-        The data must be NDArray(3 * H * W).
-        The H and W of each data must be same.
-    :return:
-    """
-    data, _ = dataset.__getitem__(0)
-    _, h, w = data.shape
+# TODO どういう状態のデータセットに対して平均、標準偏差を取得すべきか？
+def calc_img_mean_std(dataset):
+    array_sum = np.zeros(shape=(3,))
+    array_sum_sq = np.zeros(shape=(3,))
 
-    data_sum = mx.nd.zeros(shape=(3,))
-    data_sum_sq = mx.nd.zeros(shape=(3,))
+    mean = 0.0
+    std = 0.0
+    area = 0
+    count = len(dataset)
+    bar = tqdm(dataset)
 
-    for data, _ in tqdm(dataset):
-        data_sum += data.sum(axis=[1, 2])
-        data_sum_sq += (data ** 2).sum(axis=[1, 2])
+    for i, (img, _) in enumerate(bar, start=1):
+        array = np.array(img).astype(np.int64) / 255
+        h, w, _ = array.shape
+        area += h * w
+        array_sum += array.sum(axis=(0, 1))
+        array_sum_sq += (array ** 2).sum(axis=(0, 1))
 
-    count = len(dataset) * h * w
-
-    mean = data_sum / count
-    var = data_sum_sq / count - mean ** 2
-    std = var.sqrt()
-
-    mean = [round(v.item(), 3) for v in mean.asnumpy()]
-    std = [round(v.item(), 3) for v in std.asnumpy()]
+        if i % 100 == 0 or i == count:
+            mean = array_sum / area
+            var = array_sum_sq / area - mean ** 2
+            std = np.sqrt(var)
+            bar.set_description(f'mean: {mean}, std: {std}')
 
     return mean, std
