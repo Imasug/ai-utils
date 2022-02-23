@@ -16,37 +16,51 @@ class TorchTrainer:
             criterion,
             optimizer,
             callback,
+            num_workers=0,
+            pin_memory=False,
+            batch_multi=1,
     ):
         self.epochs = epochs
         self.device = device
         self.batch_size = batch_size
-        self.train_data = DataLoader(train_data, batch_size=batch_size)
-        self.val_data = DataLoader(val_data, batch_size=batch_size)
+        self.train_data = DataLoader(train_data, shuffle=True, drop_last=True, batch_size=batch_size,
+                                     num_workers=num_workers, pin_memory=pin_memory)
+        self.val_data = DataLoader(val_data, shuffle=True, drop_last=True, batch_size=batch_size,
+                                   num_workers=num_workers, pin_memory=pin_memory)
         self.model = model.to(device)
         self.criterion = criterion
         self.optimizer = optimizer
         self.callback = callback
+        self.batch_multi = batch_multi
 
     def train(self, epoch):
         self.model.train()
         bar = tqdm(self.train_data)
         train_loss = 0.0
+        multi = 0
+        step = 0
         for i, (data, target) in enumerate(bar, start=1):
             data = data.to(self.device)
             target = target.to(self.device)
 
-            self.optimizer.zero_grad()
+            if multi == 0:
+                self.optimizer.zero_grad()
+
             with torch.set_grad_enabled(True):
                 output = self.model(data)
                 loss = self.criterion(output, target)
-                loss.backward()
-            self.optimizer.step()
+                adjusted_loss = loss / self.batch_multi
+                adjusted_loss.backward()
+            multi += 1
 
-            train_loss += loss
+            if multi == self.batch_multi:
+                self.optimizer.step()
+                step += 1
+                multi = 0
+                train_loss += loss
+                bar.set_description(f'epoch: {epoch}, step: {step}, loss: {loss:.3f}')
 
-            bar.set_description(f'epoch: {epoch}, iter: {i}, loss: {loss}')
-
-        return train_loss / len(bar)
+        return train_loss / step
 
     def val(self, epoch):
         self.model.eval()
@@ -62,7 +76,7 @@ class TorchTrainer:
 
             val_loss += loss
 
-            bar.set_description(f'epoch: {epoch}, iter: {i}, loss: {loss}')
+            bar.set_description(f'epoch: {epoch}, step: {i}, loss: {loss:.3f}')
 
         return val_loss / len(bar)
 

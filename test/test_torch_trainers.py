@@ -51,16 +51,17 @@ class TestTorchTrainer(unittest.TestCase):
             transform=ToTensor(),
         )
 
-        batch_size = 64
+        batch_size = 4
 
         model = NeuralNetwork()
 
+        # ロスはバッチサイズに平均化される。
         criterion = nn.CrossEntropyLoss()
 
         optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
 
         def callback(epoch, train_loss, val_loss, this):
-            print(f'epoch: {epoch}, train loss: {train_loss}, val loss: {val_loss}')
+            print(f'epoch: {epoch}, train loss: {train_loss:.3f}, val loss: {val_loss:.3f}')
 
         trainer = TorchTrainer(
             epochs=5,
@@ -72,6 +73,7 @@ class TestTorchTrainer(unittest.TestCase):
             criterion=criterion,
             optimizer=optimizer,
             callback=callback,
+            batch_multi=16,
         )
 
         trainer.start()
