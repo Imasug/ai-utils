@@ -3,7 +3,6 @@ from pathlib import Path
 
 import torch
 from torch import nn
-from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import ToTensor
 
@@ -54,10 +53,6 @@ class TestTorchTrainer(unittest.TestCase):
 
         batch_size = 64
 
-        # Create data loaders.
-        train_dataloader = DataLoader(training_data, batch_size=batch_size)
-        test_dataloader = DataLoader(test_data, batch_size=batch_size)
-
         model = NeuralNetwork()
 
         criterion = nn.CrossEntropyLoss()
@@ -70,8 +65,9 @@ class TestTorchTrainer(unittest.TestCase):
         trainer = TorchTrainer(
             epochs=5,
             device=device,
-            train_data=train_dataloader,
-            val_data=test_dataloader,
+            batch_size=batch_size,
+            train_data=training_data,
+            val_data=test_data,
             model=model,
             criterion=criterion,
             optimizer=optimizer,

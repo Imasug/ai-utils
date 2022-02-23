@@ -1,5 +1,6 @@
 from tqdm import tqdm
 import torch
+from torch.utils.data import DataLoader
 
 
 class TorchTrainer:
@@ -8,6 +9,7 @@ class TorchTrainer:
             self,
             epochs,
             device,
+            batch_size,
             train_data,
             val_data,
             model,
@@ -17,14 +19,13 @@ class TorchTrainer:
     ):
         self.epochs = epochs
         self.device = device
-        self.train_data = train_data
-        self.val_data = val_data
-        self.model = model
+        self.batch_size = batch_size
+        self.train_data = DataLoader(train_data, batch_size=batch_size)
+        self.val_data = DataLoader(val_data, batch_size=batch_size)
+        self.model = model.to(device)
         self.criterion = criterion
         self.optimizer = optimizer
         self.callback = callback
-
-        self.model.to(self.device)
 
     def train(self, epoch):
         self.model.train()
