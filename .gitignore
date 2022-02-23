@@ -11,6 +11,6 @@ __pycache__/
 .idea/**/dictionaries
 .idea/**/shelf
 
-checkpoints/
-
 data/
+
+checkpoint/

@@ -1,6 +1,11 @@
-from tqdm import tqdm
+import json
+from pathlib import Path
+
 import torch
 from torch.utils.data import DataLoader
+from tqdm import tqdm
+
+LATEST_FILENAME = 'checkpoint'
 
 
 class TorchTrainer:
@@ -16,6 +21,7 @@ class TorchTrainer:
             criterion,
             optimizer,
             callback,
+            checkpoint_dir: Path,
             num_workers=0,
             pin_memory=False,
             batch_multi=1,
@@ -32,6 +38,11 @@ class TorchTrainer:
         self.optimizer = optimizer
         self.callback = callback
         self.batch_multi = batch_multi
+        self.checkpoint_dir = checkpoint_dir
+        self.latest_file = self.checkpoint_dir.joinpath(LATEST_FILENAME)
+
+        if not self.checkpoint_dir.exists():
+            self.checkpoint_dir.mkdir(parents=True)
 
     def train(self, epoch):
         self.model.train()
@@ -80,9 +91,28 @@ class TorchTrainer:
 
         return val_loss / len(bar)
 
+    def load(self):
+        with open(self.latest_file) as f:
+            data = json.load(f)
+        pth_file = self.checkpoint_dir.joinpath(data['path'])
+        self.model.load_state_dict(torch.load(pth_file))
+        return data['epoch'] + 1
+
+    def save(self, epoch):
+        pth_filename = f'epoch_{epoch}.pth'
+        pth_file = self.checkpoint_dir.joinpath(pth_filename)
+        torch.save(self.model.state_dict(), pth_file)
+        latest = {
+            'epoch': epoch,
+            'path': pth_filename
+        }
+        with open(self.latest_file, 'w') as f:
+            json.dump(latest, f, indent=2)
+
     def start(self):
-        start_epoch = 1
+        start_epoch = self.load() if self.latest_file.exists() else 1
         for epoch in range(start_epoch, start_epoch + self.epochs):
             train_loss = self.train(epoch)
             val_loss = self.val(epoch)
             self.callback(epoch, train_loss, val_loss, self)
+            self.save(epoch)

@@ -27,7 +27,9 @@ class NeuralNetwork(nn.Module):
         return logits
 
 
-root = Path(__file__).parent.joinpath('data')
+test_dir = Path(__file__).parent
+root = test_dir.joinpath('data')
+checkpoint_dir = test_dir.joinpath('checkpoint')
 
 
 class TestTorchTrainer(unittest.TestCase):
@@ -51,7 +53,7 @@ class TestTorchTrainer(unittest.TestCase):
             transform=ToTensor(),
         )
 
-        batch_size = 4
+        batch_size = 64
 
         model = NeuralNetwork()
 
@@ -73,7 +75,8 @@ class TestTorchTrainer(unittest.TestCase):
             criterion=criterion,
             optimizer=optimizer,
             callback=callback,
-            batch_multi=16,
+            batch_multi=1,
+            checkpoint_dir=checkpoint_dir,
         )
 
         trainer.start()
