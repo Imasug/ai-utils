@@ -45,7 +45,7 @@ class Trainer:
         for data, target in bar:
             with autograd.record():
                 outputs = self.model(data)
-                losses = self.criterion(*outputs, target)
+                losses = self.criterion(outputs, target)
                 autograd.backward(losses)
             batch_size += data.shape[0]
             multi += 1
@@ -66,7 +66,7 @@ class Trainer:
         val_loss = 0.0
         for i, (data, target) in enumerate(bar, start=1):
             outputs = self.model(data)
-            losses = self.criterion(*outputs, target)
+            losses = self.criterion(outputs, target)
             for loss in losses:
                 val_loss += np.mean(loss.asnumpy()) / len(losses)
             bar.set_description(f'iter: {i}, val loss: {val_loss / i:.3f}')
@@ -84,7 +84,7 @@ class Trainer:
         for epoch in range(start_epoch, start_epoch + self.epochs):
             train_loss = self.train()
             val_loss = self.validate()
-            self.callback(train_loss, val_loss)
+            self.callback(epoch, train_loss, val_loss, self)
             params_file = f'epoch_{epoch}.params'
             self.model.save_parameters(f'{self.save_dir}/{params_file}')
             latest = {
