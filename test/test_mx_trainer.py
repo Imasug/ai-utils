@@ -28,7 +28,9 @@ class TestTrainer(unittest.TestCase):
         ]
         dataset = mx.gluon.data.ArrayDataset(items)
 
-        criterion = gluon.loss.SoftmaxCrossEntropyLoss()
+        def criterion(outputs, target):
+            losses = gluon.loss.SoftmaxCrossEntropyLoss()(outputs, target)
+            return list(losses)
 
         class MockOptimizer:
             def step(self, batch_size):

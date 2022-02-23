@@ -36,7 +36,7 @@ class Trainer:
         for p in self.model.collect_params().values():
             p.grad_req = 'add'
 
-    def train(self):
+    def train(self, epoch):
         bar = tqdm(self.train_data)
         train_loss = 0.0
         batch_size = 0
@@ -56,12 +56,14 @@ class Trainer:
                 batch_size = 0
                 multi = 0
                 i += 1
+                # TODO 分岐にした方がよさそう
+                assert isinstance(losses, list), 'criterion must return list'
                 for loss in losses:
                     train_loss += np.mean(loss.asnumpy()) / len(losses)
-                bar.set_description(f'iter: {i}, train loss: {train_loss / i:.3f}')
+                bar.set_description(f'epoch: {epoch}, iter: {i}, train loss: {train_loss / i:.3f}')
         return train_loss / i
 
-    def validate(self):
+    def validate(self, epoch):
         bar = tqdm(self.val_data)
         val_loss = 0.0
         for i, (data, target) in enumerate(bar, start=1):
@@ -69,7 +71,7 @@ class Trainer:
             losses = self.criterion(outputs, target)
             for loss in losses:
                 val_loss += np.mean(loss.asnumpy()) / len(losses)
-            bar.set_description(f'iter: {i}, val loss: {val_loss / i:.3f}')
+            bar.set_description(f'epoch: {epoch}, iter: {i}, val loss: {val_loss / i:.3f}')
         return val_loss / len(self.val_data)
 
     def start(self):
@@ -82,8 +84,8 @@ class Trainer:
             params_file = latest['params_file']
             self.model.load_parameters(f'{self.save_dir}/{params_file}')
         for epoch in range(start_epoch, start_epoch + self.epochs):
-            train_loss = self.train()
-            val_loss = self.validate()
+            train_loss = self.train(epoch)
+            val_loss = self.validate(epoch)
             self.callback(epoch, train_loss, val_loss, self)
             params_file = f'epoch_{epoch}.params'
             self.model.save_parameters(f'{self.save_dir}/{params_file}')
