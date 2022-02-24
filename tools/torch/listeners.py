@@ -1,4 +1,3 @@
-import datetime
 from pathlib import Path
 
 from torch.utils.tensorboard import SummaryWriter
@@ -10,9 +9,7 @@ TAG = 'loss'
 class TensorBoardLossReporter:
 
     def __init__(self, log_dir: Path):
-        now = datetime.datetime.now()
-        folder = now.strftime('%Y%m%d-%H%M%S')
-        self.log_dir = log_dir.joinpath(folder)
+        self.log_dir = log_dir
         self.train_writer = None
         self.val_writer = None
 
@@ -21,6 +18,9 @@ class TensorBoardLossReporter:
         val_dir = self.log_dir.joinpath('val')
         self.train_writer = SummaryWriter(log_dir=train_dir)
         self.val_writer = SummaryWriter(log_dir=val_dir)
+
+    def pre_epoch(self, epoch, target):
+        pass
 
     def post_epoch(self, epoch, data, target):
         self.train_writer.add_scalar(TAG, data.train_loss, epoch)

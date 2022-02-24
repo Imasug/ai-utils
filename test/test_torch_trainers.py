@@ -29,7 +29,7 @@ class NeuralNetwork(nn.Module):
 
 test_dir = Path(__file__).parent
 root = test_dir.joinpath('data')
-checkpoint_dir = test_dir.joinpath('checkpoint')
+checkpoint_dir = test_dir.joinpath('checkpoint').joinpath('test')
 
 
 class MockListener:
