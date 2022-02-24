@@ -20,7 +20,7 @@ class TorchTrainer:
             model,
             criterion,
             optimizer,
-            callback,
+            listener,
             checkpoint_dir: Path,
             num_workers=0,
             pin_memory=False,
@@ -36,7 +36,7 @@ class TorchTrainer:
         self.model = model.to(device)
         self.criterion = criterion
         self.optimizer = optimizer
-        self.callback = callback
+        self.listener = listener
         self.batch_multi = batch_multi
         self.checkpoint_dir = checkpoint_dir
         self.latest_file = self.checkpoint_dir.joinpath(LATEST_FILENAME)
@@ -92,6 +92,7 @@ class TorchTrainer:
         return val_loss / len(bar)
 
     def load(self):
+        # TODO ファイル名からエポック数を抜き出した方がよさそう
         with open(self.latest_file) as f:
             data = json.load(f)
         pth_file = self.checkpoint_dir.joinpath(data['path'])
@@ -110,9 +111,18 @@ class TorchTrainer:
             json.dump(latest, f, indent=2)
 
     def start(self):
-        start_epoch = self.load() if self.latest_file.exists() else 1
-        for epoch in range(start_epoch, start_epoch + self.epochs):
-            train_loss = self.train(epoch)
-            val_loss = self.val(epoch)
-            self.callback(epoch, train_loss, val_loss, self)
-            self.save(epoch)
+        self.listener.start()
+        try:
+            start_epoch = self.load() if self.latest_file.exists() else 1
+            for epoch in range(start_epoch, start_epoch + self.epochs):
+                self.listener.pre_epoch(epoch, self)
+                train_loss = self.train(epoch)
+                val_loss = self.val(epoch)
+                self.save(epoch)
+                data = type("data", (object,), {
+                    'train_loss': train_loss,
+                    'val_loss': val_loss,
+                })
+                self.listener.post_epoch(epoch, data, self)
+        finally:
+            self.listener.end()

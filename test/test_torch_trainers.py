@@ -32,6 +32,21 @@ root = test_dir.joinpath('data')
 checkpoint_dir = test_dir.joinpath('checkpoint')
 
 
+class MockListener:
+
+    def start(self):
+        print('start')
+
+    def pre_epoch(self, epoch, target):
+        print(f'epoch: {epoch}')
+
+    def post_epoch(self, epoch, data, target):
+        print(f'epoch: {epoch}, train loss: {data.train_loss:.3f}, val loss: {data.val_loss:.3f}')
+
+    def end(self):
+        print('end')
+
+
 class TestTorchTrainer(unittest.TestCase):
 
     def test(self):
@@ -62,8 +77,7 @@ class TestTorchTrainer(unittest.TestCase):
 
         optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
 
-        def callback(epoch, train_loss, val_loss, this):
-            print(f'epoch: {epoch}, train loss: {train_loss:.3f}, val loss: {val_loss:.3f}')
+        listener = MockListener()
 
         trainer = TorchTrainer(
             epochs=5,
@@ -74,7 +88,7 @@ class TestTorchTrainer(unittest.TestCase):
             model=model,
             criterion=criterion,
             optimizer=optimizer,
-            callback=callback,
+            listener=listener,
             batch_multi=1,
             checkpoint_dir=checkpoint_dir,
         )
