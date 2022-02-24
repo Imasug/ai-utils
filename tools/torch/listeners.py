@@ -66,7 +66,7 @@ class TensorBoardLossReporter(Listener):
         self.val_writer.close()
 
 
-class TorchTensorBoardModelReporter(Listener):
+class TensorBoardModelReporter(Listener):
 
     def __init__(self, log_dir):
         self.log_dir = log_dir

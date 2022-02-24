@@ -51,7 +51,7 @@ class TestTorchTensorBoardModelReporter(unittest.TestCase):
             'val_data': val_data,
         })
 
-        reporter = TorchTensorBoardModelReporter(log_dir=log_dir)
+        reporter = TensorBoardModelReporter(log_dir=log_dir)
         reporter.start(target)
 
 
