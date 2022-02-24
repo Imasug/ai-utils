@@ -43,3 +43,17 @@ class TensorBoardLossReporter(Listener):
     def end(self):
         self.train_writer.close()
         self.val_writer.close()
+
+
+class TorchTensorBoardModelReporter(Listener):
+
+    def __init__(self, log_dir):
+        self.log_dir = log_dir
+
+    def start(self, target):
+        folder = self.log_dir.joinpath(target.name)
+        model_dir = folder.joinpath('model')
+        writer = SummaryWriter(log_dir=model_dir)
+        data, _ = target.val_data.dataset[0]
+        writer.add_graph(target.model, data)
+        writer.close()
