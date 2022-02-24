@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from torch.utils.tensorboard import SummaryWriter
+from typing import List
 
 
 class Listener:
@@ -11,18 +12,38 @@ class Listener:
     def pre_epoch(self, epoch, target):
         pass
 
-    def prost_epoch(self, epoch, data, target):
+    def post_epoch(self, epoch, data, target):
         pass
 
     def end(self):
         pass
 
 
-TAG = 'loss'
+class Listeners(Listener):
+
+    def __init__(self, listeners: List[Listener]):
+        self.listeners = listeners
+
+    def start(self, target):
+        for listener in self.listeners:
+            listener.start(target)
+
+    def pre_epoch(self, epoch, target):
+        for listener in self.listeners:
+            listener.pre_epoch(epoch, target)
+
+    def post_epoch(self, epoch, data, target):
+        for listener in self.listeners:
+            listener.post_epoch(epoch, data, target)
+
+    def end(self):
+        for listener in self.listeners:
+            listener.end()
 
 
 # TODO イテレーションごとの方がよいか？
 class TensorBoardLossReporter(Listener):
+    TAG = 'loss'
 
     def __init__(self, log_dir: Path):
         self.log_dir = log_dir
@@ -37,8 +58,8 @@ class TensorBoardLossReporter(Listener):
         self.val_writer = SummaryWriter(log_dir=val_dir)
 
     def post_epoch(self, epoch, data, target):
-        self.train_writer.add_scalar(TAG, data.train_loss, epoch)
-        self.val_writer.add_scalar(TAG, data.val_loss, epoch)
+        self.train_writer.add_scalar(self.TAG, data.train_loss, epoch)
+        self.val_writer.add_scalar(self.TAG, data.val_loss, epoch)
 
     def end(self):
         self.train_writer.close()

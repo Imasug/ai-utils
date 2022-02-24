@@ -53,3 +53,31 @@ class TestTorchTensorBoardModelReporter(unittest.TestCase):
 
         reporter = TorchTensorBoardModelReporter(log_dir=log_dir)
         reporter.start(target)
+
+
+class TestListeners(unittest.TestCase):
+
+    def test(self):
+        class MockListener(Listener):
+
+            def start(self, target):
+                print('start')
+
+            def pre_epoch(self, epoch, target):
+                print('pre_epoch')
+
+            def post_epoch(self, epoch, data, target):
+                print('post_epoch')
+
+            def end(self):
+                print('end')
+
+        listeners = Listeners([
+            MockListener(),
+            MockListener(),
+        ])
+
+        listeners.start(None)
+        listeners.pre_epoch(1, None)
+        listeners.post_epoch(1, None, None)
+        listeners.end()
