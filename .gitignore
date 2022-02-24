@@ -12,5 +12,5 @@ __pycache__/
 .idea/**/shelf
 
 data/
-
 checkpoint/
+log/
