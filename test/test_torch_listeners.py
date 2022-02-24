@@ -9,8 +9,12 @@ log_dir = Path(__file__).parent.joinpath('log')
 class TestTorchTensorBoardLossReporter(unittest.TestCase):
 
     def test(self):
+        target = type('target', (object,), {
+            'name': 'test'
+        })
+
         reporter = TensorBoardLossReporter(log_dir=log_dir)
-        reporter.start('test')
+        reporter.start(target)
 
         train_loss = val_loss = 100
 

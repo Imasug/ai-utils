@@ -34,8 +34,8 @@ checkpoint_dir = test_dir.joinpath('checkpoint')
 
 class MockListener:
 
-    def start(self, name):
-        print(f'start name: {name}')
+    def start(self, target):
+        print(f'start name: {target.name}')
 
     def pre_epoch(self, epoch, target):
         print(f'epoch: {epoch}')

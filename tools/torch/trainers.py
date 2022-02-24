@@ -113,7 +113,7 @@ class TorchTrainer:
             json.dump(latest, f, indent=2)
 
     def start(self):
-        self.listener.start(self.name)
+        self.listener.start(self)
         try:
             start_epoch = self.load() if self.latest_file.exists() else 1
             for epoch in range(start_epoch, start_epoch + self.epochs):
