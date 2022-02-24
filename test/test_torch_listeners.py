@@ -3,14 +3,14 @@ from pathlib import Path
 
 from tools.torch.listeners import TensorBoardLossReporter
 
-log_dir = Path(__file__).parent.joinpath('log').joinpath('test')
+log_dir = Path(__file__).parent.joinpath('log')
 
 
 class TestTorchTensorBoardLossReporter(unittest.TestCase):
 
     def test(self):
         reporter = TensorBoardLossReporter(log_dir=log_dir)
-        reporter.start()
+        reporter.start('test')
 
         train_loss = val_loss = 100
 

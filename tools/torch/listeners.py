@@ -13,9 +13,10 @@ class TensorBoardLossReporter:
         self.train_writer = None
         self.val_writer = None
 
-    def start(self):
-        train_dir = self.log_dir.joinpath('train')
-        val_dir = self.log_dir.joinpath('val')
+    def start(self, name):
+        folder = self.log_dir.joinpath(name)
+        train_dir = folder.joinpath('train')
+        val_dir = folder.joinpath('val')
         self.train_writer = SummaryWriter(log_dir=train_dir)
         self.val_writer = SummaryWriter(log_dir=val_dir)
 

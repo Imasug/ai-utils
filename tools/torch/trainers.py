@@ -12,6 +12,7 @@ class TorchTrainer:
 
     def __init__(
             self,
+            name,
             epochs,
             device,
             batch_size,
@@ -26,19 +27,20 @@ class TorchTrainer:
             pin_memory=False,
             batch_multi=1,
     ):
+        self.name = name
         self.epochs = epochs
         self.device = device
         self.batch_size = batch_size
-        self.train_data = DataLoader(train_data, shuffle=True, drop_last=True, batch_size=batch_size,
+        self.train_data = DataLoader(train_data, shuffle=True, drop_last=True, batch_size=self.batch_size,
                                      num_workers=num_workers, pin_memory=pin_memory)
-        self.val_data = DataLoader(val_data, shuffle=True, drop_last=True, batch_size=batch_size,
+        self.val_data = DataLoader(val_data, shuffle=True, drop_last=True, batch_size=self.batch_size,
                                    num_workers=num_workers, pin_memory=pin_memory)
-        self.model = model.to(device)
+        self.model = model.to(self.device)
         self.criterion = criterion
         self.optimizer = optimizer
         self.listener = listener
         self.batch_multi = batch_multi
-        self.checkpoint_dir = checkpoint_dir
+        self.checkpoint_dir = checkpoint_dir.joinpath(self.name)
         self.latest_file = self.checkpoint_dir.joinpath(LATEST_FILENAME)
 
         if not self.checkpoint_dir.exists():
@@ -111,7 +113,7 @@ class TorchTrainer:
             json.dump(latest, f, indent=2)
 
     def start(self):
-        self.listener.start()
+        self.listener.start(self.name)
         try:
             start_epoch = self.load() if self.latest_file.exists() else 1
             for epoch in range(start_epoch, start_epoch + self.epochs):

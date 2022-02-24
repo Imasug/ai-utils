@@ -29,13 +29,13 @@ class NeuralNetwork(nn.Module):
 
 test_dir = Path(__file__).parent
 root = test_dir.joinpath('data')
-checkpoint_dir = test_dir.joinpath('checkpoint').joinpath('test')
+checkpoint_dir = test_dir.joinpath('checkpoint')
 
 
 class MockListener:
 
-    def start(self):
-        print('start')
+    def start(self, name):
+        print(f'start name: {name}')
 
     def pre_epoch(self, epoch, target):
         print(f'epoch: {epoch}')
@@ -80,6 +80,7 @@ class TestTorchTrainer(unittest.TestCase):
         listener = MockListener()
 
         trainer = TorchTrainer(
+            name='test',
             epochs=5,
             device=device,
             batch_size=batch_size,
