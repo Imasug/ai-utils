@@ -60,6 +60,8 @@ class TensorBoardLossReporter(Listener):
     def post_epoch(self, epoch, data, target):
         self.train_writer.add_scalar(self.TAG, data.train_loss, epoch)
         self.val_writer.add_scalar(self.TAG, data.val_loss, epoch)
+        self.train_writer.flush()
+        self.val_writer.flush()
 
     def end(self):
         self.train_writer.close()
@@ -76,5 +78,5 @@ class TensorBoardModelReporter(Listener):
         model_dir = folder.joinpath('model')
         writer = SummaryWriter(log_dir=model_dir)
         data, _ = target.val_data.dataset[0]
-        writer.add_graph(target.model, data)
+        writer.add_graph(target.model, data.to(target.device))
         writer.close()
