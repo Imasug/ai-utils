@@ -6,6 +6,9 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 LATEST_FILENAME = 'checkpoint'
+MODEL_FILENAME = 'model.pth'
+OPTIM_FILENAME = 'optim.pth'
+EPOCH_FOLDER_TEMPLATE = 'epoch_%s'
 
 
 class TorchTrainer:
@@ -94,27 +97,40 @@ class TorchTrainer:
         return val_loss / len(bar)
 
     def load(self):
-        # TODO ファイル名からエポック数を抜き出した方がよさそう
         with open(self.latest_file) as f:
             data = json.load(f)
-        pth_file = self.checkpoint_dir.joinpath(data['path'])
-        state = torch.load(pth_file)
-        self.model.load_state_dict(state['model'])
-        self.optimizer.load_state_dict(state['optimizer'])
-        return data['epoch'] + 1
+        epoch = data['epoch']
+
+        folder = self.checkpoint_dir.joinpath(EPOCH_FOLDER_TEMPLATE % epoch)
+
+        # model
+        model_file = folder.joinpath(MODEL_FILENAME)
+        self.model.load_state_dict(torch.load(model_file))
+
+        # optimizer
+        optim_file = folder.joinpath(OPTIM_FILENAME)
+        self.optimizer.load_state_dict(torch.load(optim_file))
+
+        return epoch + 1
 
     def save(self, epoch):
-        pth_filename = f'epoch_{epoch}.pth'
-        pth_file = self.checkpoint_dir.joinpath(pth_filename)
-        state = {
-            'model': self.model.state_dict(),
-            'optimizer': self.optimizer.state_dict(),
-        }
-        torch.save(state, pth_file)
+
+        folder = self.checkpoint_dir.joinpath(EPOCH_FOLDER_TEMPLATE % epoch)
+        folder.mkdir()
+
+        # model
+        model_file = folder.joinpath(MODEL_FILENAME)
+        torch.save(self.model.state_dict(), model_file)
+
+        # optimizer
+        # TODO
+        optim_file = folder.joinpath(OPTIM_FILENAME)
+        torch.save(self.optimizer.state_dict(), optim_file)
+
         latest = {
             'epoch': epoch,
-            'path': pth_filename
         }
+
         with open(self.latest_file, 'w') as f:
             json.dump(latest, f, indent=2)
 

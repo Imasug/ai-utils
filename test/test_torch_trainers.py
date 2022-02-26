@@ -77,11 +77,13 @@ class TestTorchTrainer(unittest.TestCase):
 
         optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
 
+        # TODO scheduler
+
         listener = MockListener()
 
         trainer = TorchTrainer(
             name='test',
-            epochs=5,
+            epochs=1,
             device=device,
             batch_size=batch_size,
             train_data=training_data,
