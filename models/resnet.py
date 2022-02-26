@@ -10,6 +10,7 @@ model_urls = {
     'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
     'resnet34': 'https://download.pytorch.org/models/resnet34-333f7ec4.pth',
     'resnet50': 'https://download.pytorch.org/models/resnet50-19c8e357.pth',
+    'resnet50_v2': 'https://drive.google.com/uc?export=download&id=1_4W7FIkwgBMwO8Rt_c8b99Y2XOGS4wNt',
     'resnet101': 'https://download.pytorch.org/models/resnet101-5d3b4d8f.pth',
     'resnet152': 'https://download.pytorch.org/models/resnet152-b121ed2d.pth',
 }
@@ -193,9 +194,8 @@ def resnet50(pretrained=False, **kwargs):
     """
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
     if pretrained:
-        # model.load_state_dict(model_zoo.load_url(model_urls['resnet50']))
-        model_path = './initmodel/resnet50_v2.pth'
-        model.load_state_dict(torch.load(model_path), strict=False)
+        # TODO 向き先を変える。
+        model.load_state_dict(model_zoo.load_url(model_urls['resnet50_v2']))
     return model
 
 

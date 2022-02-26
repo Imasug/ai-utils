@@ -4,6 +4,8 @@ import torch.nn.functional as F
 
 import models.resnet as models
 
+from utils import utils
+
 
 class PPM(nn.Module):
     def __init__(self, in_dim, reduction_dim, bins):
@@ -27,7 +29,7 @@ class PPM(nn.Module):
 
 
 class PSPNet(nn.Module):
-    def __init__(self, layers=50, bins=(1, 2, 3, 6), dropout=0.1, classes=2):
+    def __init__(self, layers=50, bins=(1, 2, 3, 6), dropout=0.1, classes=2, init_weights=utils.init_weights):
         super(PSPNet, self).__init__()
         assert layers in [50, 101, 152]
         assert 2048 % len(bins) == 0
@@ -73,6 +75,10 @@ class PSPNet(nn.Module):
             nn.Dropout2d(p=dropout),
             nn.Conv2d(256, classes, kernel_size=1)
         )
+        # TODO
+        self.ppm.apply(init_weights)
+        self.cls.apply(init_weights)
+        self.aux.apply(init_weights)
 
     def forward(self, x):
         _, _, h, w = x.size()
