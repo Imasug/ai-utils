@@ -1,8 +1,9 @@
+import shutil
+from distutils.dir_util import copy_tree
 from pathlib import Path
-
-import torch
-from torch.utils.tensorboard import SummaryWriter
 from typing import List
+
+from torch.utils.tensorboard import SummaryWriter
 
 
 class Listener:
@@ -81,3 +82,13 @@ class TensorBoardModelReporter(Listener):
         data, _ = target.val_data.dataset[0]
         writer.add_graph(target.model, data.unsqueeze(0).to(target.device))
         writer.close()
+
+
+class PostEpochCopier(Listener):
+
+    def __init__(self, src: Path, dst: Path):
+        self.src = src
+        self.dst = dst
+
+    def post_epoch(self, epoch, data, target):
+        copy_tree(str(self.src), str(self.dst))

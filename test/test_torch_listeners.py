@@ -82,3 +82,19 @@ class TestListeners(unittest.TestCase):
         listeners.pre_epoch(1, None)
         listeners.post_epoch(1, None, None)
         listeners.end()
+
+
+class TestPostEpochCopier(unittest.TestCase):
+
+    # TODO ファイルコピー
+    # TODO テストケース不足
+
+    def test_copy_dir(self):
+        src_path = Path('src')
+        src_path.mkdir()
+        dst_path = Path('dst')
+        listener = PostEpochCopier(src_path, dst_path)
+        listener.post_epoch(None, None, None)
+        self.assertTrue(dst_path.exists())
+        src_path.rmdir()
+        dst_path.rmdir()
