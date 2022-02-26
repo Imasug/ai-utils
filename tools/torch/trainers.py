@@ -8,6 +8,7 @@ from tqdm import tqdm
 LATEST_FILENAME = 'checkpoint'
 MODEL_FILENAME = 'model.pth'
 OPTIM_FILENAME = 'optim.pth'
+SCHED_FILENAME = 'sched.pth'
 EPOCH_FOLDER_TEMPLATE = 'epoch_%s'
 
 
@@ -24,6 +25,7 @@ class TorchTrainer:
             model,
             criterion,
             optimizer,
+            scheduler,
             listener,
             checkpoint_dir: Path,
             num_workers=0,
@@ -41,6 +43,7 @@ class TorchTrainer:
         self.model = model.to(self.device)
         self.criterion = criterion
         self.optimizer = optimizer
+        self.scheduler = scheduler
         self.listener = listener
         self.batch_multi = batch_multi
         self.checkpoint_dir = checkpoint_dir.joinpath(self.name)
@@ -111,6 +114,10 @@ class TorchTrainer:
         optim_file = folder.joinpath(OPTIM_FILENAME)
         self.optimizer.load_state_dict(torch.load(optim_file))
 
+        # scheduler
+        sched_file = folder.joinpath(SCHED_FILENAME)
+        self.scheduler.load_state_dict(torch.load(sched_file))
+
         return epoch + 1
 
     def save(self, epoch):
@@ -127,6 +134,11 @@ class TorchTrainer:
         optim_file = folder.joinpath(OPTIM_FILENAME)
         torch.save(self.optimizer.state_dict(), optim_file)
 
+        # scheduler
+        # TODO
+        sched_file = folder.joinpath(SCHED_FILENAME)
+        torch.save(self.scheduler.state_dict(), sched_file)
+
         latest = {
             'epoch': epoch,
         }
@@ -142,6 +154,7 @@ class TorchTrainer:
                 self.listener.pre_epoch(epoch, self)
                 train_loss = self.train(epoch)
                 val_loss = self.val(epoch)
+                self.scheduler.step()
                 self.save(epoch)
                 data = type("data", (object,), {
                     'train_loss': train_loss,

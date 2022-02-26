@@ -1,3 +1,4 @@
+import math
 import unittest
 from pathlib import Path
 
@@ -77,7 +78,10 @@ class TestTorchTrainer(unittest.TestCase):
 
         optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
 
-        # TODO scheduler
+        def lambda_epoch(epoch):
+            return math.pow((1 - epoch / 100), 0.9)
+
+        scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_epoch)
 
         listener = MockListener()
 
@@ -90,6 +94,7 @@ class TestTorchTrainer(unittest.TestCase):
             val_data=test_data,
             model=model,
             criterion=criterion,
+            scheduler=scheduler,
             optimizer=optimizer,
             listener=listener,
             batch_multi=1,
