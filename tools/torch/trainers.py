@@ -98,13 +98,19 @@ class TorchTrainer:
         with open(self.latest_file) as f:
             data = json.load(f)
         pth_file = self.checkpoint_dir.joinpath(data['path'])
-        self.model.load_state_dict(torch.load(pth_file))
+        state = torch.load(pth_file)
+        self.model.load_state_dict(state['model'])
+        self.optimizer.load_state_dict(state['optimizer'])
         return data['epoch'] + 1
 
     def save(self, epoch):
         pth_filename = f'epoch_{epoch}.pth'
         pth_file = self.checkpoint_dir.joinpath(pth_filename)
-        torch.save(self.model.state_dict(), pth_file)
+        state = {
+            'model': self.model.state_dict(),
+            'optimizer': self.optimizer.state_dict(),
+        }
+        torch.save(state, pth_file)
         latest = {
             'epoch': epoch,
             'path': pth_filename
