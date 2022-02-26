@@ -49,7 +49,7 @@ class SyncRandomScaledCrop:
         size = np.array(data.size)
         scaled_size = (size * scale).astype(int)
         data = data.resize(scaled_size, Image.BICUBIC)
-        target = target.resize(scaled_size)
+        target = target.resize(scaled_size, Image.NEAREST)
         if scale > 1.0:
             box1 = np.random.randint(0, scaled_size - size).astype(int)
             box2 = box1 + size
@@ -58,8 +58,8 @@ class SyncRandomScaledCrop:
         else:
             box1 = np.random.randint(0, size - scaled_size).astype(int)
             original_data = data.copy()
-            img = Image.new(data.mode, tuple(size), 0)
-            img.paste(original_data, tuple(box1))
+            data = Image.new(data.mode, tuple(size), 0)
+            data.paste(original_data, tuple(box1))
             original_target = target.copy()
             target = Image.new(target.mode, tuple(size), 0)
             target.paste(original_target, tuple(box1))
@@ -83,7 +83,7 @@ class SyncResize:
 
     def __call__(self, data, target):
         data = data.resize(self.size, Image.BICUBIC)
-        target = target.resize(self.size)
+        target = target.resize(self.size, Image.NEAREST)
         return data, target
 
 

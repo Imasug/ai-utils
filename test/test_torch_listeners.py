@@ -49,6 +49,7 @@ class TestTorchTensorBoardModelReporter(unittest.TestCase):
             'name': 'test',
             'model': model,
             'val_data': val_data,
+            'device': 'cpu'
         })
 
         reporter = TensorBoardModelReporter(log_dir=log_dir)

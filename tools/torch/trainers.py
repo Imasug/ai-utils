@@ -61,7 +61,7 @@ class TorchTrainer:
 
             with torch.set_grad_enabled(True):
                 output = self.model(data)
-                loss = self.criterion(output, target)
+                loss = self.criterion(output, target.long())
                 adjusted_loss = loss / self.batch_multi
                 adjusted_loss.backward()
             multi += 1

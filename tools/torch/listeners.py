@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import torch
 from torch.utils.tensorboard import SummaryWriter
 from typing import List
 
@@ -78,5 +79,5 @@ class TensorBoardModelReporter(Listener):
         model_dir = folder.joinpath('model')
         writer = SummaryWriter(log_dir=model_dir)
         data, _ = target.val_data.dataset[0]
-        writer.add_graph(target.model, data.to(target.device))
+        writer.add_graph(target.model, data.unsqueeze(0).to(target.device))
         writer.close()
