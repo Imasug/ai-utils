@@ -27,16 +27,13 @@ class PPM(nn.Module):
 
 
 class PSPNet(nn.Module):
-    def __init__(self, layers=50, bins=(1, 2, 3, 6), dropout=0.1, classes=2, zoom_factor=8, use_ppm=True,
-                 criterion=nn.CrossEntropyLoss(ignore_index=255), pretrained=True):
+    def __init__(self, layers=50, bins=(1, 2, 3, 6), dropout=0.1, classes=2):
         super(PSPNet, self).__init__()
         assert layers in [50, 101, 152]
         assert 2048 % len(bins) == 0
         assert classes > 1
-        assert zoom_factor in [1, 2, 4, 8]
-        self.zoom_factor = zoom_factor
-        self.use_ppm = use_ppm
-        self.criterion = criterion
+
+        pretrained = True
 
         if layers == 50:
             resnet = models.resnet50(pretrained=pretrained)
@@ -60,9 +57,8 @@ class PSPNet(nn.Module):
                 m.stride = (1, 1)
 
         fea_dim = 2048
-        if use_ppm:
-            self.ppm = PPM(fea_dim, int(fea_dim / len(bins)), bins)
-            fea_dim *= 2
+        self.ppm = PPM(fea_dim, int(fea_dim / len(bins)), bins)
+        fea_dim *= 2
         self.cls = nn.Sequential(
             nn.Conv2d(fea_dim, 512, kernel_size=3, padding=1, bias=False),
             nn.BatchNorm2d(512),
@@ -70,51 +66,26 @@ class PSPNet(nn.Module):
             nn.Dropout2d(p=dropout),
             nn.Conv2d(512, classes, kernel_size=1)
         )
-        if self.training:
-            self.aux = nn.Sequential(
-                nn.Conv2d(1024, 256, kernel_size=3, padding=1, bias=False),
-                nn.BatchNorm2d(256),
-                nn.ReLU(inplace=True),
-                nn.Dropout2d(p=dropout),
-                nn.Conv2d(256, classes, kernel_size=1)
-            )
+        self.aux = nn.Sequential(
+            nn.Conv2d(1024, 256, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+            nn.Dropout2d(p=dropout),
+            nn.Conv2d(256, classes, kernel_size=1)
+        )
 
-    def forward(self, x, y=None):
-        x_size = x.size()
-        assert (x_size[2] - 1) % 8 == 0 and (x_size[3] - 1) % 8 == 0
-        h = int((x_size[2] - 1) / 8 * self.zoom_factor + 1)
-        w = int((x_size[3] - 1) / 8 * self.zoom_factor + 1)
+    def forward(self, x):
+        _, _, h, w = x.size()
 
         x = self.layer0(x)
         x = self.layer1(x)
         x = self.layer2(x)
         x_tmp = self.layer3(x)
         x = self.layer4(x_tmp)
-        if self.use_ppm:
-            x = self.ppm(x)
+        x = self.ppm(x)
         x = self.cls(x)
-        if self.zoom_factor != 1:
-            x = F.interpolate(x, size=(h, w), mode='bilinear', align_corners=True)
+        x = F.interpolate(x, size=(h, w), mode='bilinear', align_corners=True)
 
-        if self.training:
-            aux = self.aux(x_tmp)
-            if self.zoom_factor != 1:
-                aux = F.interpolate(aux, size=(h, w), mode='bilinear', align_corners=True)
-            main_loss = self.criterion(x, y)
-            aux_loss = self.criterion(aux, y)
-            return x.max(1)[1], main_loss, aux_loss
-        else:
-            return x
-
-
-if __name__ == '__main__':
-    import os
-
-    os.environ["CUDA_VISIBLE_DEVICES"] = '0, 1'
-    input = torch.rand(4, 3, 473, 473).cuda()
-    model = PSPNet(layers=50, bins=(1, 2, 3, 6), dropout=0.1, classes=21, zoom_factor=1, use_ppm=True,
-                   pretrained=True).cuda()
-    model.eval()
-    print(model)
-    output = model(input)
-    print('PSPNet', output.size())
+        aux = self.aux(x_tmp)
+        aux = F.interpolate(aux, size=(h, w), mode='bilinear', align_corners=True)
+        return x, aux
