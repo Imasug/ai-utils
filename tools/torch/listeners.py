@@ -129,6 +129,7 @@ class TensorBoardSegmentationInferenceReporter(Listener):
             # inference
             index += 1
             img, seg = self.transform(img, seg)
+            img = img.unsqueeze(0).to(target.device)
             inference = self.transform_output(target.model(img))
             fig.add_subplot(y, x, index)
             plt.imshow(inference)

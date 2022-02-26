@@ -51,12 +51,18 @@ class SyncRandomScaledCrop:
         data = data.resize(scaled_size, Image.BICUBIC)
         target = target.resize(scaled_size, Image.NEAREST)
         if scale > 1.0:
-            box1 = np.random.randint(0, scaled_size - size).astype(int)
+            diff = scaled_size - size
+            if np.any(diff == 0):
+                return data, target
+            box1 = np.random.randint(0, diff).astype(int)
             box2 = box1 + size
             data = data.crop((*box1, *box2))
             target = target.crop((*box1, *box2))
         else:
-            box1 = np.random.randint(0, size - scaled_size).astype(int)
+            diff = size - scaled_size
+            if np.any(diff == 0):
+                return data, target
+            box1 = np.random.randint(0, diff).astype(int)
             original_data = data.copy()
             data = Image.new(data.mode, tuple(size), 0)
             data.paste(original_data, tuple(box1))

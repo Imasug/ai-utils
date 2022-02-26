@@ -88,7 +88,7 @@ class TorchTrainer:
 
             with torch.set_grad_enabled(False):
                 output = self.model(data)
-                loss = self.criterion(output, target)
+                loss = self.criterion(output, target.long())
 
             val_loss += loss
 
