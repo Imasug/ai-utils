@@ -1,11 +1,18 @@
+import random
 import unittest
 
 import torch
 from torch import nn
 
 from tools.torch.listeners import *
+from PIL import Image
+from torchvision.transforms import ToTensor
+from utils.transforms import Transform
 
 log_dir = Path(__file__).parent.joinpath('log')
+test_images_path = Path(__file__).parent.joinpath('images')
+test_img_path = test_images_path.joinpath('test.jpg')
+test_seg_path = test_images_path.joinpath('test.png')
 
 
 class TestTorchTensorBoardLossReporter(unittest.TestCase):
@@ -98,3 +105,36 @@ class TestPostEpochCopier(unittest.TestCase):
         self.assertTrue(dst_path.exists())
         src_path.rmdir()
         dst_path.rmdir()
+
+
+class TestTensorBoardSegmentationInferenceReporter(unittest.TestCase):
+
+    def test(self):
+        img = Image.open(test_img_path)
+        seg = Image.open(test_seg_path)
+
+        def model(x):
+            return None
+
+        target = type('target', (object,), {
+            'name': 'test',
+            'model': model,
+            'device': 'cpu'
+        })
+
+        def transform_output(output):
+            r = int(random.random() * 255)
+            return Image.new('P', (100, 100), (r, 0, 0))
+
+        reporter = TensorBoardSegmentationInferenceReporter(
+            log_dir=log_dir,
+            dataset=[(img, seg)],
+            transform=Transform(),
+            transform_output=transform_output)
+
+        reporter.start(target)
+
+        for i in range(1, 4):
+            reporter.post_epoch(i, None, target)
+
+        reporter.end()

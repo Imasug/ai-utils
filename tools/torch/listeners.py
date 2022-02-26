@@ -1,9 +1,12 @@
-import shutil
 from distutils.dir_util import copy_tree
 from pathlib import Path
 from typing import List
 
 from torch.utils.tensorboard import SummaryWriter
+
+from utils.transforms import Transform
+
+import matplotlib.pyplot as plt
 
 
 class Listener:
@@ -92,3 +95,46 @@ class PostEpochCopier(Listener):
 
     def post_epoch(self, epoch, data, target):
         copy_tree(str(self.src), str(self.dst))
+
+
+class TensorBoardSegmentationInferenceReporter(Listener):
+
+    def __init__(self, log_dir, dataset, transform: Transform, transform_output):
+        self.log_dir = log_dir
+        self.dataset = dataset
+        self.transform = transform
+        self.transform_output = transform_output
+        self.writer = None
+
+    def start(self, target):
+        folder = self.log_dir.joinpath(target.name)
+        inference_dir = folder.joinpath('inference')
+        self.writer = SummaryWriter(log_dir=inference_dir)
+
+    def post_epoch(self, epoch, data, target):
+        x, y = 3, len(self.dataset)
+        index = 0
+        fig = plt.figure(figsize=(15, 5))
+        for img, seg in self.dataset:
+            # img
+            index += 1
+            fig.add_subplot(y, x, index)
+            plt.imshow(img)
+
+            # seg
+            index += 1
+            fig.add_subplot(y, x, index)
+            plt.imshow(seg)
+
+            # inference
+            index += 1
+            img, seg = self.transform(img, seg)
+            inference = self.transform_output(target.model(img))
+            fig.add_subplot(y, x, index)
+            plt.imshow(inference)
+
+        self.writer.add_figure(target.name, fig, epoch)
+        self.writer.flush()
+
+    def end(self):
+        self.writer.close()
