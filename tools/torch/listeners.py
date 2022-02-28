@@ -126,7 +126,7 @@ class TensorBoardSegmentationInferenceReporter(Listener):
             plt.imshow(seg)
 
             # output
-            output = self.inference(target.model, img)
+            output = self.inference(target.model, img, target.device)
             index += 1
             fig.add_subplot(y, x, index)
             plt.imshow(output)

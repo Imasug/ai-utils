@@ -122,7 +122,7 @@ class TestTensorBoardSegmentationInferenceReporter(unittest.TestCase):
             'device': 'cpu'
         })
 
-        def inference(model, img):
+        def inference(model, img, device):
             r = int(random.random() * 255)
             return Image.new('P', (100, 100), (r, 0, 0))
 
