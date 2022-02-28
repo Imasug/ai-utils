@@ -99,6 +99,7 @@ class PostEpochCopier(Listener):
 
 class TensorBoardSegmentationInferenceReporter(Listener):
 
+    # TODO transform, transform_outputをなくしてinferenceにする。
     def __init__(self, log_dir, dataset, transform: Transform, transform_output):
         self.log_dir = log_dir
         self.dataset = dataset
