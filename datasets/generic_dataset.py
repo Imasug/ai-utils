@@ -30,8 +30,9 @@ class GenericSegmentationDataset:
 
 class COCODataset:
 
-    def __init__(self, root, mode, transform=None):
+    def __init__(self, root, mode, conv_cat=None, transform=None):
         self.folder = f'{root}/{mode}'
+        self.conv_cat = conv_cat
         self.transform = transform
         self.coco = COCO(f'{self.folder}/annots.json')
         self.img_ids = self.coco.getImgIds()
@@ -45,9 +46,10 @@ class COCODataset:
         ann_ids = self.coco.getAnnIds(img_id)
         anns = self.coco.loadAnns(ann_ids)
         for ann in anns:
-            # TODO offsetにするか？
-            clazz = ann['category_id'] + 1
-            seg = np.maximum(self.coco.annToMask(ann) * clazz, seg)
+            cat = ann['category_id']
+            if self.conv_cat is not None:
+                cat = self.conv_cat(cat)
+            seg = np.maximum(self.coco.annToMask(ann) * cat, seg)
         seg = Image.fromarray(np.uint8(seg), 'L')
 
         if self.transform is not None:

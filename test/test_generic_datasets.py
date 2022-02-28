@@ -67,3 +67,5 @@ class TestCOCODataset(unittest.TestCase):
         img, seg = dataset.__getitem__(0)
         self.assertEqual(img, 1)
         self.assertEqual(seg, 2)
+
+    # TODO test conv_cat
