@@ -123,7 +123,7 @@ class TorchTrainer:
     def save(self, epoch):
 
         folder = self.checkpoint_dir.joinpath(EPOCH_FOLDER_TEMPLATE % epoch)
-        folder.mkdir()
+        folder.mkdir(exist_ok=True)
 
         # model
         model_file = folder.joinpath(MODEL_FILENAME)
