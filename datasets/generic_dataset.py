@@ -30,7 +30,7 @@ class GenericSegmentationDataset:
 
 class COCODataset:
 
-    def __init__(self, root, mode, transform):
+    def __init__(self, root, mode, transform=None):
         self.folder = f'{root}/{mode}'
         self.transform = transform
         self.coco = COCO(f'{self.folder}/annots.json')
@@ -48,7 +48,7 @@ class COCODataset:
             # TODO offsetにするか？
             clazz = ann['category_id'] + 1
             seg = np.maximum(self.coco.annToMask(ann) * clazz, seg)
-        seg = Image.fromarray(seg, 'L')
+        seg = Image.fromarray(np.uint8(seg), 'L')
 
         if self.transform is not None:
             img, seg = self.transform(data=img, target=seg)
