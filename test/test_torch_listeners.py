@@ -122,15 +122,15 @@ class TestTensorBoardSegmentationInferenceReporter(unittest.TestCase):
             'device': 'cpu'
         })
 
-        def transform_output(output):
+        def inference(model, img):
             r = int(random.random() * 255)
             return Image.new('P', (100, 100), (r, 0, 0))
 
         reporter = TensorBoardSegmentationInferenceReporter(
             log_dir=log_dir,
             dataset=[(img, seg)],
-            transform=Transform(),
-            transform_output=transform_output)
+            inference=inference,
+        )
 
         reporter.start(target)
 

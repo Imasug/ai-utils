@@ -99,12 +99,10 @@ class PostEpochCopier(Listener):
 
 class TensorBoardSegmentationInferenceReporter(Listener):
 
-    # TODO transform, transform_outputをなくしてinferenceにする。
-    def __init__(self, log_dir, dataset, transform: Transform, transform_output):
+    def __init__(self, log_dir, dataset, inference):
         self.log_dir = log_dir
         self.dataset = dataset
-        self.transform = transform
-        self.transform_output = transform_output
+        self.inference = inference
         self.writer = None
 
     def start(self, target):
@@ -127,13 +125,11 @@ class TensorBoardSegmentationInferenceReporter(Listener):
             fig.add_subplot(y, x, index)
             plt.imshow(seg)
 
-            # inference
+            # output
+            output = self.inference(target.model, img)
             index += 1
-            img, seg = self.transform(img, seg)
-            img = img.unsqueeze(0).to(target.device)
-            inference = self.transform_output(target.model(img))
             fig.add_subplot(y, x, index)
-            plt.imshow(inference)
+            plt.imshow(output)
 
         self.writer.add_figure(target.name, fig, epoch)
         self.writer.flush()
