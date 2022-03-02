@@ -46,22 +46,33 @@ class SegMetrics:
             c_target = (target == c)
             c_prediction = (prediction == c)
             correct = np.count_nonzero(c_target * c_prediction)
-            total = np.count_nonzero(c_target)
-            stats.append([correct, total])
+            target_total = np.count_nonzero(c_target)
+            prediction_total = np.count_nonzero(c_prediction)
+            total = target_total + prediction_total - correct
+            stats.append([correct, target_total, total])
         return cls(np.array(stats))
 
     def get_pixel_accuracy(self):
-        correct, total = self.stats.sum(axis=0)
-        return correct / total
+        correct, target_total, _ = self.stats.sum(axis=0)
+        return correct / target_total
 
     def get_mean_accuracy(self):
         accuracy = np.array([])
         for stat in self.stats:
-            correct, total = stat
+            correct, target_total, _ = stat
+            if target_total == 0:
+                continue
+            accuracy = np.append(accuracy, correct / target_total)
+        return accuracy.mean()
+
+    def get_mean_iou(self):
+        iou = np.array([])
+        for stat in self.stats:
+            correct, _, total = stat
             if total == 0:
                 continue
-            accuracy = np.append(accuracy, correct / total)
-        return accuracy.mean()
+            iou = np.append(iou, correct / total)
+        return iou.mean()
 
     def __add__(self, other):
         stats = self.stats + other.stats

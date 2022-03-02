@@ -30,15 +30,15 @@ class TestFunctional(unittest.TestCase):
             # 1
             [
                 [
-                    [0, 1],
-                    [2, 3],
+                    [1, 2],
+                    [1, 2],
                 ]
             ],
             # 2
             [
                 [
-                    [0, 1],
-                    [2, 3],
+                    [1, 2],
+                    [1, 2],
                 ]
             ],
         ])
@@ -46,15 +46,15 @@ class TestFunctional(unittest.TestCase):
             # 1
             [
                 [
-                    [1, 1],
-                    [2, 3],
+                    [2, 1],
+                    [1, 2],
                 ]
             ],
             # 2
             [
                 [
-                    [0, 1],
-                    [2, 3],
+                    [2, 1],
+                    [1, 2],
                 ]
             ],
         ])
@@ -63,5 +63,6 @@ class TestFunctional(unittest.TestCase):
 
         seg_metrics = F.get_seg_metrics(target, prediction, cls_num)
 
-        self.assertEqual(7 / 8, seg_metrics.get_pixel_accuracy())
-        self.assertEqual(3.5 / 4, seg_metrics.get_mean_accuracy())
+        self.assertEqual(0.5, seg_metrics.get_pixel_accuracy())
+        self.assertEqual(0.5, seg_metrics.get_mean_accuracy())
+        self.assertEqual(1 / 3, seg_metrics.get_mean_iou())
