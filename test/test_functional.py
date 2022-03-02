@@ -1,10 +1,10 @@
 import unittest
 
 import numpy as np
+import torch
 
 import utils.functional as F
 from PIL import Image
-import mxnet as mx
 
 
 class TestFunctional(unittest.TestCase):
@@ -20,9 +20,48 @@ class TestFunctional(unittest.TestCase):
         data.append((img, 'label'))
         data.append((img, 'label'))
 
-        dataset = mx.gluon.data.ArrayDataset(data)
-
-        mean, std = F.calc_img_mean_std(dataset)
+        mean, std = F.calc_img_mean_std(data)
 
         self.assertEqual([2.5, 5, 7.5], [v.item() for v in mean * 255])
         self.assertEqual([1.118, 2.236, 3.354], [round(v.item(), 3) for v in std * 255])
+
+    def test_get_seg_metrics(self):
+        target = np.array([
+            # 1
+            [
+                [
+                    [0, 1],
+                    [2, 3],
+                ]
+            ],
+            # 2
+            [
+                [
+                    [0, 1],
+                    [2, 3],
+                ]
+            ],
+        ])
+        prediction = np.array([
+            # 1
+            [
+                [
+                    [1, 1],
+                    [2, 3],
+                ]
+            ],
+            # 2
+            [
+                [
+                    [0, 1],
+                    [2, 3],
+                ]
+            ],
+        ])
+
+        cls_num = 5
+
+        seg_metrics = F.get_seg_metrics(target, prediction, cls_num)
+
+        self.assertEqual(7 / 8, seg_metrics.get_pixel_accuracy())
+        self.assertEqual(3.5 / 4, seg_metrics.get_mean_accuracy())

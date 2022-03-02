@@ -27,3 +27,56 @@ def calc_img_mean_std(dataset):
             bar.set_description(f'mean: {mean}, std: {std}')
 
     return mean, std
+
+
+class SegMetrics:
+
+    def __init__(self, stats: np.ndarray):
+        self.stats = stats
+
+    @classmethod
+    def create(
+            cls,
+            target: np.ndarray,
+            prediction: np.ndarray,
+            cls_num: int
+    ):
+        stats = []
+        for c in range(0, cls_num):
+            c_target = (target == c)
+            c_prediction = (prediction == c)
+            correct = np.count_nonzero(c_target * c_prediction)
+            total = np.count_nonzero(c_target)
+            stats.append([correct, total])
+        return cls(np.array(stats))
+
+    def get_pixel_accuracy(self):
+        correct, total = self.stats.sum(axis=0)
+        return correct / total
+
+    def get_mean_accuracy(self):
+        accuracy = np.array([])
+        for stat in self.stats:
+            correct, total = stat
+            if total == 0:
+                continue
+            accuracy = np.append(accuracy, correct / total)
+        return accuracy.mean()
+
+    def __add__(self, other):
+        stats = self.stats + other.stats
+        return SegMetrics(stats)
+
+
+def get_seg_metrics(
+        target: np.ndarray,
+        prediction: np.ndarray,
+        cls_num: int
+) -> SegMetrics:
+    """
+    :param target: B, C, H, W
+    :param prediction: B, C, H, W
+    :param cls_num:
+    :return:
+    """
+    return SegMetrics.create(target, prediction, cls_num)
