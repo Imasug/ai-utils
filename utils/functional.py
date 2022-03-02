@@ -1,5 +1,7 @@
 import numpy as np
+import torch
 from tqdm import tqdm
+from functools import singledispatch
 
 
 # TODO どういう状態のデータセットに対して平均、標準偏差を取得すべきか？
@@ -79,6 +81,7 @@ class SegMetrics:
         return SegMetrics(stats)
 
 
+@singledispatch
 def get_seg_metrics(
         target: np.ndarray,
         prediction: np.ndarray,
@@ -91,3 +94,15 @@ def get_seg_metrics(
     :return:
     """
     return SegMetrics.create(target, prediction, cls_num)
+
+
+# TODO パフォーマンスが悪い場合は、GPUで扱えるように修正
+@get_seg_metrics.register
+def get_seg_metrics_torch(
+        target: torch.Tensor,
+        prediction: torch.Tensor,
+        cls_num: int
+) -> SegMetrics:
+    target = target.cpu().detach().numpy()
+    prediction = prediction.cpu().detach().numpy()
+    return get_seg_metrics(target, prediction, cls_num)
