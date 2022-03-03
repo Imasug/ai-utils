@@ -74,6 +74,15 @@ class SegMetrics:
             iou = np.append(iou, correct / total)
         return iou.mean()
 
+    def get_mean_f1_score(self):
+        f1_score = np.array([])
+        for stat in self.stats:
+            correct, _, total = stat
+            if total == 0:
+                continue
+            f1_score = np.append(f1_score, 2 * correct / (total + correct))
+        return f1_score.mean()
+
     def __add__(self, other):
         stats = self.stats + other.stats
         return SegMetrics(stats)

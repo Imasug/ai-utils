@@ -66,3 +66,4 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(0.5, seg_metrics.get_pixel_accuracy())
         self.assertEqual(0.5, seg_metrics.get_mean_accuracy())
         self.assertEqual(1 / 3, seg_metrics.get_mean_iou())
+        self.assertEqual(0.5, seg_metrics.get_mean_f1_score())
