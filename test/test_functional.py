@@ -66,13 +66,3 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(0.5, seg_metrics.get_pixel_accuracy())
         self.assertEqual(0.5, seg_metrics.get_mean_accuracy())
         self.assertEqual(1 / 3, seg_metrics.get_mean_iou())
-
-        # torch
-        target = torch.from_numpy(target)
-        prediction = torch.from_numpy(prediction)
-
-        seg_metrics = F.get_seg_metrics(target, prediction, cls_num)
-
-        self.assertEqual(0.5, seg_metrics.get_pixel_accuracy())
-        self.assertEqual(0.5, seg_metrics.get_mean_accuracy())
-        self.assertEqual(1 / 3, seg_metrics.get_mean_iou())
