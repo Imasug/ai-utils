@@ -69,3 +69,16 @@ class TestCOCODataset(unittest.TestCase):
         self.assertEqual(seg, 2)
 
     # TODO test conv_cat
+
+    def test_get_img_ids(self):
+        def get_img_ids(coco):
+            return [coco.getImgIds()[0]]
+
+        root = Path(__file__).parent.joinpath('datasets').joinpath('fashionpedia')
+        dataset = COCODataset(root=root, mode='train', get_img_ids=get_img_ids)
+        self.assertEqual(1, len(dataset))
+        img0, seg0 = dataset.__getitem__(0)
+
+        self.assertIsInstance(img0, Image.Image)
+        self.assertEqual('RGB', img0.mode)
+        self.assertEqual((771, 1024), img0.size)

@@ -30,12 +30,15 @@ class GenericSegmentationDataset:
 
 class COCODataset:
 
-    def __init__(self, root, mode, conv_cat=None, transform=None):
+    def __init__(self, root, mode, get_img_ids=None, conv_cat=None, transform=None):
         self.folder = f'{root}/{mode}'
         self.conv_cat = conv_cat
         self.transform = transform
         self.coco = COCO(f'{self.folder}/annots.json')
-        self.img_ids = self.coco.getImgIds()
+        if get_img_ids is not None:
+            self.img_ids = get_img_ids(self.coco)
+        else:
+            self.img_ids = self.coco.getImgIds()
 
     def __getitem__(self, index):
         img_id = self.img_ids[index]
