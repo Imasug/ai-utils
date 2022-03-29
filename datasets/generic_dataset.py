@@ -30,6 +30,7 @@ class GenericSegmentationDataset:
 
 class COCODataset:
 
+    # TODO transformで対応できるので、conv_catは消す。
     def __init__(self, root, mode, get_img_ids=None, conv_cat=None, transform=None):
         self.folder = f'{root}/{mode}'
         self.conv_cat = conv_cat
